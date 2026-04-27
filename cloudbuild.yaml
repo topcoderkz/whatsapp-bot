@@ -51,16 +51,13 @@ steps:
 
   # ---- Run database migrations ----
   - id: migrate
-    name: gcr.io/cloud-builders/docker
+    name: ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/bot:$SHORT_SHA
     entrypoint: sh
     args:
       - -c
       - |
-        echo "Running migrations..."
-        docker run --rm \
-          -e DATABASE_URL=$$DATABASE_URL_TCP \
-          ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/bot:$SHORT_SHA \
-          npx prisma migrate deploy --schema ./prisma/schema.prisma
+        echo "DATABASE_URL is set: ${DATABASE_URL_TCP:+yes}"
+        npx prisma migrate deploy --schema ./prisma/schema.prisma
     secretEnv: ['DATABASE_URL_TCP']
     waitFor: [push-bot]
 
