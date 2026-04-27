@@ -34,6 +34,9 @@ COPY --from=build /app/packages/bot/prisma ./prisma
 COPY --from=build /app/node_modules/.pnpm/@prisma+client*/node_modules/@prisma/client ./node_modules/@prisma/client
 COPY --from=build /app/node_modules/.pnpm/@prisma+engines*/node_modules/@prisma/engines ./node_modules/@prisma/engines
 
+# Make prisma CLI accessible on PATH (pnpm stores it deep in .pnpm)
+RUN ln -sf /app/node_modules/.pnpm/prisma@*/node_modules/prisma/node_modules/.bin/prisma /usr/local/bin/prisma && chmod +x /usr/local/bin/prisma
+
 RUN chown -R appuser:appgroup /app
 USER appuser
 

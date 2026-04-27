@@ -57,7 +57,7 @@ steps:
       - -c
       - |
         echo "DATABASE_URL is set: ${DATABASE_URL:+yes}"
-        npx prisma migrate deploy --schema ./prisma/schema.prisma
+        prisma migrate deploy --schema ./prisma/schema.prisma
     secretEnv: ['DATABASE_URL']
     waitFor: [push-bot]
 
