@@ -112,7 +112,7 @@ resource "google_secret_manager_secret" "database_url_tcp" {
 
 resource "google_secret_manager_secret_version" "database_url_tcp" {
   secret      = google_secret_manager_secret.database_url_tcp.id
-  secret_data = "postgresql://fitness:${var.db_password}@${google_sql_database_instance.postgres.public_ip_address}:5432/${google_sql_database.fitness_bot.name}"
+  secret_data = "postgresql://fitness:${var.db_password}@${google_sql_database_instance.postgres.public_ip_address}:5432/${google_sql_database.fitness_bot.name}?sslmode=disable"
 }
 
 resource "google_secret_manager_secret_iam_member" "cloudbuild_database_url_tcp" {
@@ -243,10 +243,6 @@ resource "google_cloud_run_v2_service" "admin" {
       env {
         name  = "NODE_ENV"
         value = "production"
-      }
-      env {
-        name  = "PORT"
-        value = "8080"
       }
 
       resources {
