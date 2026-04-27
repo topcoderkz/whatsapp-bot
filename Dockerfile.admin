@@ -1,0 +1,45 @@
+FROM node:20-alpine AS build
+
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+WORKDIR /app
+
+# Copy workspace root files
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY packages/admin/package.json ./packages/admin/
+COPY packages/bot/package.json ./packages/bot/
+
+# Install all dependencies (admin needs prisma from bot workspace)
+RUN pnpm install --frozen-lockfile
+
+# Copy prisma schema and generate client (admin shares the DB schema)
+COPY packages/bot/prisma ./packages/bot/prisma
+RUN pnpm --filter bot exec prisma generate
+
+# Copy admin source
+COPY packages/admin/ ./packages/admin/
+
+# Build Next.js in standalone mode
+RUN pnpm --filter admin exec next build
+
+# ---- Runtime ----
+FROM node:20-alpine
+
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
+WORKDIR /app
+
+# Copy standalone Next.js output
+COPY --from=build /app/packages/admin/.next/standalone ./
+COPY --from=build /app/packages/admin/.next/static ./packages/admin/.next/static
+COPY --from=build /app/packages/admin/public ./packages/admin/public
+
+RUN chown -R appuser:appgroup /app
+USER appuser
+
+ENV NODE_ENV=production
+ENV PORT=8080
+ENV HOSTNAME=0.0.0.0
+
+EXPOSE 8080
+
+CMD ["node", "packages/admin/server.js"]

@@ -1,0 +1,16 @@
+node_modules/
+dist/
+.next/
+.env
+!.env.example
+*.log
+.DS_Store
+coverage/
+.turbo/
+.claude/
+
+# Terraform
+infrastructure/.terraform/
+infrastructure/*.tfstate*
+infrastructure/terraform.tfvars
+!infrastructure/terraform.tfvars.example

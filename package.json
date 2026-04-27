@@ -1,0 +1,12 @@
+{
+  "name": "100fit-whatsapp-bot",
+  "private": true,
+  "scripts": {
+    "dev": "pnpm --parallel --filter bot --filter admin dev",
+    "build": "pnpm --filter bot --filter admin build",
+    "lint": "pnpm --filter bot --filter admin lint"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

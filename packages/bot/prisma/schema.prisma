@@ -1,0 +1,239 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  BRANCH_MANAGER
+}
+
+model AdminUser {
+  id           Int       @id @default(autoincrement())
+  username     String    @unique
+  passwordHash String    @map("password_hash")
+  role         AdminRole @default(BRANCH_MANAGER)
+  branchId     Int?      @map("branch_id")
+  branch       Branch?   @relation(fields: [branchId], references: [id])
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  @@map("admin_users")
+}
+
+model Branch {
+  id           Int       @id @default(autoincrement())
+  slug         String    @unique
+  name         String
+  address      String
+  phone        String
+  managerPhone String    @map("manager_phone")
+  workingHours String    @default("07:00-23:00") @map("working_hours")
+  isActive     Boolean   @default(true) @map("is_active")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  memberships  Membership[]
+  trainers     Trainer[]
+  groupClasses GroupClass[]
+  bookings     Booking[]
+  clients      Client[]
+  adminUsers   AdminUser[]
+  broadcasts   BroadcastMessage[]
+
+  @@map("branches")
+}
+
+enum MembershipType {
+  VISITS_12_MORNING
+  VISITS_12_FULL
+  UNLIMITED_MORNING
+  UNLIMITED_FULL
+  MONTHS_3
+  MONTHS_6
+  MONTHS_12
+}
+
+model Membership {
+  id             Int            @id @default(autoincrement())
+  branchId       Int            @map("branch_id")
+  branch         Branch         @relation(fields: [branchId], references: [id])
+  name           String
+  type           MembershipType
+  durationMonths Int            @map("duration_months")
+  price          Int
+  timeRange      String?        @map("time_range")
+  displayOrder   Int            @default(0) @map("display_order")
+  isActive       Boolean        @default(true) @map("is_active")
+  createdAt      DateTime       @default(now()) @map("created_at")
+  updatedAt      DateTime       @updatedAt @map("updated_at")
+
+  @@map("memberships")
+}
+
+model Trainer {
+  id              Int        @id @default(autoincrement())
+  branchId        Int        @map("branch_id")
+  branch          Branch     @relation(fields: [branchId], references: [id])
+  name            String
+  specialization  String?
+  photoUrl        String?    @map("photo_url")
+  bio             String?
+  experienceYears Int?       @map("experience_years")
+  isActive        Boolean    @default(true) @map("is_active")
+  deactivatedAt   DateTime?  @map("deactivated_at")
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+
+  groupClasses GroupClass[]
+  bookings     Booking[]
+
+  @@map("trainers")
+}
+
+model GroupClass {
+  id          Int     @id @default(autoincrement())
+  branchId    Int     @map("branch_id")
+  branch      Branch  @relation(fields: [branchId], references: [id])
+  name        String
+  description String?
+  trainerId   Int?    @map("trainer_id")
+  trainer     Trainer? @relation(fields: [trainerId], references: [id])
+  capacity    Int     @default(20)
+  schedule    Json
+  isActive    Boolean @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("group_classes")
+}
+
+model Promotion {
+  id          Int       @id @default(autoincrement())
+  title       String
+  description String
+  conditions  String?
+  imageUrl    String?   @map("image_url")
+  startDate   DateTime  @map("start_date")
+  endDate     DateTime  @map("end_date")
+  isActive    Boolean   @default(true) @map("is_active")
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  @@map("promotions")
+}
+
+enum WorkoutType {
+  INDIVIDUAL
+  GROUP
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+model Booking {
+  id             Int           @id @default(autoincrement())
+  clientPhone    String        @map("client_phone")
+  branchId       Int           @map("branch_id")
+  branch         Branch        @relation(fields: [branchId], references: [id])
+  workoutType    WorkoutType   @map("workout_type")
+  trainerId      Int?          @map("trainer_id")
+  trainer        Trainer?      @relation(fields: [trainerId], references: [id])
+  date           DateTime
+  timeSlot       String        @map("time_slot")
+  priceAtBooking Int?          @map("price_at_booking")
+  status         BookingStatus @default(PENDING)
+  createdAt      DateTime      @default(now()) @map("created_at")
+  updatedAt      DateTime      @updatedAt @map("updated_at")
+
+  notifications NotificationLog[]
+
+  @@map("bookings")
+}
+
+enum ClientSource {
+  CSV_IMPORT
+  MANUAL
+  BOT
+}
+
+model Client {
+  id           Int          @id @default(autoincrement())
+  phone        String       @unique
+  name         String?
+  branchId     Int?         @map("branch_id")
+  branch       Branch?      @relation(fields: [branchId], references: [id])
+  source       ClientSource @default(MANUAL)
+  isActive     Boolean      @default(true) @map("is_active")
+  isSubscribed Boolean      @default(true) @map("is_subscribed")
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  @@map("clients")
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  DELIVERED
+  READ
+  FAILED
+}
+
+model NotificationLog {
+  id             Int                @id @default(autoincrement())
+  bookingId      Int?               @map("booking_id")
+  booking        Booking?           @relation(fields: [bookingId], references: [id])
+  broadcastId    Int?               @map("broadcast_id")
+  broadcast      BroadcastMessage?  @relation(fields: [broadcastId], references: [id])
+  recipientPhone String             @map("recipient_phone")
+  templateName   String?            @map("template_name")
+  status         NotificationStatus @default(PENDING)
+  waMessageId    String?            @map("wa_message_id")
+  errorMessage   String?            @map("error_message")
+  createdAt      DateTime           @default(now()) @map("created_at")
+  sentAt         DateTime?          @map("sent_at")
+  deliveredAt    DateTime?          @map("delivered_at")
+  readAt         DateTime?          @map("read_at")
+
+  @@map("notification_logs")
+}
+
+enum BroadcastStatus {
+  DRAFT
+  SENDING
+  SENT
+  FAILED
+}
+
+enum BroadcastFilter {
+  ALL
+  SUBSCRIBED
+  BRANCH
+}
+
+model BroadcastMessage {
+  id             Int             @id @default(autoincrement())
+  title          String
+  messageText    String          @map("message_text")
+  templateName   String?         @map("template_name")
+  targetBranchId Int?            @map("target_branch_id")
+  targetBranch   Branch?         @relation(fields: [targetBranchId], references: [id])
+  targetFilter   BroadcastFilter @default(ALL) @map("target_filter")
+  status         BroadcastStatus @default(DRAFT)
+  sentCount      Int             @default(0) @map("sent_count")
+  failedCount    Int             @default(0) @map("failed_count")
+  createdAt      DateTime        @default(now()) @map("created_at")
+  sentAt         DateTime?       @map("sent_at")
+
+  notifications NotificationLog[]
+
+  @@map("broadcast_messages")
+}

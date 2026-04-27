@@ -1,0 +1,21 @@
+project_id   = "your-gcp-project-id"
+region       = "us-central1"
+github_owner = "topcoderkz"
+github_repo  = "whatsapp-bot"
+alert_email  = "iluhaha1984@gmail.com"
+
+# Database
+db_password = "change-this-strong-password"
+db_tier     = "db-f1-micro"   # Cheapest: ~$7/mo. Use db-g1-small for better performance.
+
+# Redis (sign up at https://upstash.com for free Redis)
+redis_url = "redis://default:password@endpoint.upstash.io:6379"
+
+# Admin panel
+admin_jwt_secret = "generate-a-random-secret-here"
+admin_password   = "changeme"
+
+# WhatsApp (leave empty until Meta approves your business)
+whatsapp_access_token    = ""
+whatsapp_phone_number_id = ""
+whatsapp_verify_token    = "fitness-verify-token"
