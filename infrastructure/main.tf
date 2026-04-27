@@ -132,10 +132,6 @@ resource "google_cloud_run_v2_service" "bot" {
         value = "postgresql://fitness:${var.db_password}@localhost:5432/fitness_bot?host=/cloudsql/${google_sql_database_instance.postgres.connection_name}"
       }
       env {
-        name  = "REDIS_URL"
-        value = var.redis_url
-      }
-      env {
         name  = "WHATSAPP_ACCESS_TOKEN"
         value = var.whatsapp_access_token
       }

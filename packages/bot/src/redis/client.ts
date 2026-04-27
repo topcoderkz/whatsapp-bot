@@ -1,18 +1,31 @@
-import Redis from 'ioredis';
-import { config } from '../config';
+// In-memory key-value store (replaces Redis)
+const store = new Map<string, { value: string; expiresAt: number }>();
 
-export const redis = new Redis(config.redisUrl, {
-  maxRetriesPerRequest: 3,
-  retryStrategy(times) {
-    if (times > 3) return null;
-    return Math.min(times * 200, 2000);
+// Cleanup expired keys every 5 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, entry] of store) {
+    if (entry.expiresAt <= now) store.delete(key);
+  }
+}, 5 * 60 * 1000);
+
+export const redis = {
+  async get(key: string): Promise<string | null> {
+    const entry = store.get(key);
+    if (!entry) return null;
+    if (entry.expiresAt <= Date.now()) {
+      store.delete(key);
+      return null;
+    }
+    return entry.value;
   },
-});
 
-redis.on('error', (err) => {
-  console.error('[Redis] Connection error:', err.message);
-});
+  async set(key: string, value: string, _ex?: string, ttl?: number): Promise<void> {
+    const expiresAt = Date.now() + (ttl || 86400) * 1000;
+    store.set(key, { value, expiresAt });
+  },
 
-redis.on('connect', () => {
-  console.log('[Redis] Connected');
-});
+  async del(key: string): Promise<void> {
+    store.delete(key);
+  },
+};

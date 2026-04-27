@@ -22,7 +22,6 @@ export const config = {
 
   // Database
   databaseUrl: process.env.DATABASE_URL || 'postgresql://fitness:fitness@localhost:5432/fitness_bot',
-  redisUrl: process.env.REDIS_URL || 'redis://localhost:6379',
 
   // Admin
   admin: {
