@@ -51,15 +51,17 @@ steps:
 
   # ---- Run database migrations ----
   - id: migrate
-    name: ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/bot:$SHORT_SHA
+    name: gcr.io/cloud-builders/docker
     entrypoint: sh
     args:
       - -c
       - |
-        cd /app
-        echo "DATABASE_URL is set: ${DATABASE_URL:+yes}"
-        echo "Schema exists: $(ls prisma/schema.prisma 2>/dev/null && echo yes || echo no)"
-        prisma migrate deploy --schema ./prisma/schema.prisma
+        echo "Running migrations with DATABASE_URL..."
+        docker run --rm \
+          -e DATABASE_URL=$$DATABASE_URL \
+          -w /app \
+          ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/bot:$SHORT_SHA \
+          prisma migrate deploy --schema ./prisma/schema.prisma
     secretEnv: ['DATABASE_URL']
     waitFor: [push-bot]
 
@@ -103,7 +105,8 @@ availableSecrets:
       env: DATABASE_URL
 
 options:
-  logging: STREAMING
+  logging: GCS_ONLY
+  logsBucket: gs://whatsapp-bot-494313-cloudbuild-logs
   machineType: E2_HIGHCPU_8
 
 timeout: 1200s
