@@ -30,8 +30,8 @@ COPY --from=build /app/packages/bot/dist ./dist
 COPY --from=build /app/packages/bot/node_modules ./packages/bot/node_modules
 COPY --from=build /app/packages/bot/prisma ./prisma
 
-# Copy Prisma generated client (prisma generate puts it in packages/bot/node_modules/.prisma)
-COPY --from=build /app/packages/bot/node_modules/.prisma ./node_modules/.prisma
+# Copy Prisma generated client to where @prisma/client expects it
+COPY --from=build /app/node_modules/.pnpm/@prisma+client*/node_modules/.prisma ./node_modules/.prisma
 
 # Make prisma CLI accessible on PATH (pnpm stores it deep in .pnpm)
 RUN printf '#!/bin/sh\nexec /app/node_modules/.pnpm/prisma@*/node_modules/prisma/node_modules/.bin/prisma "$@"\n' > /usr/local/bin/prisma && \
