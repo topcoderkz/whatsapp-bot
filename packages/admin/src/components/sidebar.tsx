@@ -14,6 +14,8 @@ const navItems = [
   { href: '/bookings', label: 'Записи', icon: '📅' },
   { href: '/clients', label: 'Клиенты', icon: '👤' },
   { href: '/broadcasts', label: 'Рассылки', icon: '📨' },
+  { href: '/admins', label: 'Администраторы', icon: '🛡️' },
+  { href: '/settings', label: 'Настройки', icon: '⚙️' },
 ];
 
 export function Sidebar() {

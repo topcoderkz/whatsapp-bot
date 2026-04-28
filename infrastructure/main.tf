@@ -56,10 +56,6 @@ resource "google_sql_database_instance" "postgres" {
 
     ip_configuration {
       ipv4_enabled = true
-      authorized_networks {
-        name  = "allow-all"
-        value = "0.0.0.0/0"
-      }
     }
 
     backup_configuration {
@@ -101,27 +97,7 @@ resource "google_secret_manager_secret_version" "database_url" {
   secret_data = "postgresql://fitness:${var.db_password}@/${google_sql_database.fitness_bot.name}?host=/cloudsql/${google_sql_database_instance.postgres.connection_name}"
 }
 
-# TCP-based URL for migrations (Cloud Build can't use Unix sockets)
-resource "google_secret_manager_secret" "database_url_tcp" {
-  secret_id = "DATABASE_URL_TCP"
-  replication {
-    auto {}
-  }
-  depends_on = [google_project_service.apis]
-}
-
-resource "google_secret_manager_secret_version" "database_url_tcp" {
-  secret      = google_secret_manager_secret.database_url_tcp.id
-  secret_data = "postgresql://fitness:${var.db_password}@${google_sql_database_instance.postgres.public_ip_address}:5432/${google_sql_database.fitness_bot.name}?sslmode=disable"
-}
-
-resource "google_secret_manager_secret_iam_member" "cloudbuild_database_url_tcp" {
-  secret_id = google_secret_manager_secret.database_url_tcp.id
-  role      = "roles/secretmanager.secretAccessor"
-  member    = "serviceAccount:${data.google_project.current.number}-compute@developer.gserviceaccount.com"
-}
-
-# Grant Cloud Build access to the secret
+# Grant Cloud Build access to the DATABASE_URL secret
 resource "google_secret_manager_secret_iam_member" "cloudbuild_database_url" {
   secret_id = google_secret_manager_secret.database_url.id
   role      = "roles/secretmanager.secretAccessor"
