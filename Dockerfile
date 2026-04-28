@@ -43,6 +43,7 @@ USER appuser
 
 ENV NODE_ENV=production
 ENV PORT=8080
+ENV NODE_PATH=/app/packages/bot/node_modules
 
 EXPOSE 8080
 
