@@ -64,7 +64,7 @@ export function TrainerCard({ trainer: t }: TrainerCardProps) {
           </div>
         </form>
       ) : (
-        <div className="flex items-start gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-start gap-4">
           {t.photoUrl && (
             <img src={t.photoUrl} alt={t.name} className="w-16 h-16 rounded-lg object-cover flex-shrink-0" />
           )}

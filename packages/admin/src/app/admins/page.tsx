@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { AdminLayout } from '@/components/admin-layout';
 import { getSession } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/db';
@@ -80,7 +81,7 @@ export default async function AdminsPage() {
   }
 
   return (
-    <div>
+    <AdminLayout>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold text-gray-900">Администраторы</h1>
       </div>
@@ -159,6 +160,6 @@ export default async function AdminsPage() {
           />
         ))}
       </div>
-    </div>
+    </AdminLayout>
   );
 }

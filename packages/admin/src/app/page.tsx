@@ -42,7 +42,7 @@ export default async function DashboardPage() {
           </h2>
           <div className="space-y-3">
             {recentBookings.map((b) => (
-              <div key={b.id} className="flex items-center justify-between bg-white rounded-lg px-4 py-3 border border-amber-100">
+              <div key={b.id} className="flex flex-col sm:flex-row sm:items-center justify-between bg-white rounded-lg px-4 py-3 border border-amber-100 gap-2">
                 <div>
                   <p className="text-sm font-medium text-gray-900">{b.clientPhone}</p>
                   <p className="text-xs text-gray-500">

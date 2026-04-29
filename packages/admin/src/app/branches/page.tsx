@@ -15,7 +15,7 @@ export default async function BranchesPage() {
       <div className="space-y-4">
         {branches.map((branch) => (
           <div key={branch.id} className={`bg-white rounded-xl border p-6 ${!branch.isActive ? 'opacity-60' : ''} border-gray-200`}>
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
               <h2 className="text-lg font-semibold text-gray-900">
                 {branch.name}
                 {!branch.isActive && <span className="ml-2 text-xs text-red-500 font-normal">(неактивен)</span>}

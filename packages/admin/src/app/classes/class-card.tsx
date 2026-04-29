@@ -66,8 +66,8 @@ export function ClassCard({ groupClass: c, trainers }: ClassCardProps) {
           </div>
         </form>
       ) : (
-        <div className="flex items-center justify-between">
-          <div>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="min-w-0">
             <div className="flex items-center gap-2">
               <h3 className="text-sm font-semibold text-gray-900">{c.name}</h3>
               {saved && <span className="text-xs text-green-600">Сохранено</span>}

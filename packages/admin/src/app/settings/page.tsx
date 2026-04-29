@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { AdminLayout } from '@/components/admin-layout';
 import { getSession } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/db';
@@ -44,8 +45,9 @@ export default async function SettingsPage() {
   }
 
   return (
-    <div className="max-w-md mx-auto">
-      <h1 className="text-2xl font-bold text-gray-900 mb-6">Настройки</h1>
+    <AdminLayout>
+      <div className="max-w-md">
+        <h1 className="text-2xl font-bold text-gray-900 mb-6">Настройки</h1>
 
       <div className="bg-white rounded-xl border border-gray-200 p-6">
         <h2 className="text-lg font-semibold text-gray-800 mb-4">Сменить пароль</h2>
@@ -111,6 +113,7 @@ export default async function SettingsPage() {
           <p><span className="font-medium">Роль:</span> {session!.role === 'SUPER_ADMIN' ? 'Супер-админ' : 'Менеджер филиала'}</p>
         </div>
       </div>
-    </div>
+      </div>
+    </AdminLayout>
   );
 }

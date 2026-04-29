@@ -69,8 +69,8 @@ export default async function PromotionsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {items.map(p => (
                 <div key={p.id} className={`bg-white rounded-xl border border-gray-200 p-4 ${!p.isActive ? 'opacity-60' : ''}`}>
-                  <div className="flex items-start justify-between">
-                    <div>
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
+                    <div className="min-w-0">
                       <h3 className="text-sm font-semibold text-gray-900">{p.title}</h3>
                       <p className="text-xs text-gray-500 mt-1">{p.description.slice(0, 100)}{p.description.length > 100 ? '...' : ''}</p>
                       <p className="text-xs text-gray-400 mt-2">
