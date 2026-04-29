@@ -1,7 +1,9 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET() {
-  const response = NextResponse.redirect(new URL('/login', process.env.BOT_INTERNAL_URL || 'http://localhost:3001'));
+export async function GET(request: NextRequest) {
+  const url = request.nextUrl.clone();
+  url.pathname = '/login';
+  const response = NextResponse.redirect(url);
   response.cookies.set('admin_token', '', {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
