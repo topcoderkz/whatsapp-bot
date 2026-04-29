@@ -14,6 +14,7 @@ export interface SessionData {
     date?: string;
     timeSlot?: string;
     trainerId?: number;
+    timePeriod?: 'morning' | 'evening';
   };
   updatedAt: string;
 }
