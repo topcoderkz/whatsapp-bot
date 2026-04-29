@@ -51,9 +51,8 @@ export function Sidebar() {
 
       <form action={async () => {
         'use server';
-        const { clearSessionCookie } = await import('@/lib/auth');
-        await clearSessionCookie();
-        require('next/navigation').redirect('/login');
+        const { logout } = await import('@/app/logout/action');
+        await logout();
       }} className="mt-auto pt-4 border-t border-gray-200">
         <button
           type="submit"
