@@ -162,7 +162,7 @@ export async function togglePromotion(id: number, isActive: boolean) {
 export async function confirmBookingAction(id: number) {
   // Call bot admin API to confirm + send WhatsApp notification
   try {
-    const res = await fetch(`http://localhost:${process.env.BOT_PORT || 3000}/admin/bookings/${id}/confirm`, {
+    const res = await fetch(`${process.env.BOT_INTERNAL_URL || `http://localhost:${process.env.BOT_PORT || 3000}`}/admin/bookings/${id}/confirm`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer admin-internal`,
@@ -179,7 +179,7 @@ export async function confirmBookingAction(id: number) {
 
 export async function cancelBookingAction(id: number) {
   try {
-    const res = await fetch(`http://localhost:${process.env.BOT_PORT || 3000}/admin/bookings/${id}/cancel`, {
+    const res = await fetch(`${process.env.BOT_INTERNAL_URL || `http://localhost:${process.env.BOT_PORT || 3000}`}/admin/bookings/${id}/cancel`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer admin-internal`,
@@ -297,7 +297,7 @@ export async function updateBroadcast(id: number, formData: FormData) {
 
 export async function sendBroadcast(broadcastId: number) {
   try {
-    const res = await fetch(`http://localhost:${process.env.BOT_PORT || 3000}/admin/broadcasts/send`, {
+    const res = await fetch(`${process.env.BOT_INTERNAL_URL || `http://localhost:${process.env.BOT_PORT || 3000}`}/admin/broadcasts/send`, {
       method: 'POST',
       headers: {
         Authorization: `Bearer admin-internal`,
