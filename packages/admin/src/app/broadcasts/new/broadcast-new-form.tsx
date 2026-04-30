@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { createBroadcast, sendBroadcast } from '@/lib/actions';
 import { useRouter } from 'next/navigation';
 
@@ -11,15 +11,18 @@ interface Branch {
 
 export function BroadcastNewForm({ branches }: { branches: Branch[] }) {
   const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const [step, setStep] = useState<'compose' | 'confirm' | 'sending' | 'done'>('compose');
   const [broadcastId, setBroadcastId] = useState<number | null>(null);
   const [result, setResult] = useState<any>(null);
   const [filter, setFilter] = useState('ALL');
 
-  async function handleCreate(formData: FormData) {
-    const id = await createBroadcast(formData);
-    setBroadcastId(id);
-    setStep('confirm');
+  function handleSubmit(formData: FormData) {
+    startTransition(async () => {
+      const id = await createBroadcast(formData);
+      setBroadcastId(id);
+      setStep('confirm');
+    });
   }
 
   async function handleSend() {
@@ -34,7 +37,7 @@ export function BroadcastNewForm({ branches }: { branches: Branch[] }) {
     <>
       {step === 'compose' && (
         <div className="bg-white rounded-xl border border-gray-200 p-6">
-          <form action={handleCreate} className="space-y-4">
+          <form action={handleSubmit} className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Заголовок (для вашего удобства)</label>
               <input name="title" required className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="Летние скидки" />
@@ -76,8 +79,8 @@ export function BroadcastNewForm({ branches }: { branches: Branch[] }) {
               )}
             </div>
 
-            <button type="submit" className="px-6 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
-              Далее
+            <button type="submit" disabled={isPending} className="px-6 py-2.5 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50">
+              {isPending ? 'Создание...' : 'Далее'}
             </button>
           </form>
         </div>
