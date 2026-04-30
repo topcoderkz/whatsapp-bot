@@ -212,12 +212,6 @@ export function BroadcastEditForm({ broadcast, branches }: { broadcast: Broadcas
             <textarea name="messageText" required rows={4} defaultValue={broadcast.messageText} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Название шаблона WhatsApp (необязательно)</label>
-            <input name="templateName" defaultValue={broadcast.templateName || ''} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" placeholder="broadcast_message" />
-            <p className="text-xs text-gray-400 mt-1">Если не указан, используется шаблон по умолчанию</p>
-          </div>
-
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Аудитория</label>
