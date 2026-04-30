@@ -224,6 +224,10 @@ resource "google_cloud_run_v2_service" "admin" {
         name  = "NODE_ENV"
         value = "production"
       }
+      env {
+        name  = "GCS_BUCKET_NAME"
+        value = "fitness-bot-uploads"
+      }
 
       resources {
         limits = {
@@ -248,4 +252,56 @@ resource "google_cloud_run_v2_service_iam_member" "admin_public" {
   location = var.region
   role     = "roles/run.invoker"
   member   = "allUsers"
+}
+
+# ---------- Cloud Storage (Image Uploads) ----------
+
+resource "google_storage_bucket" "uploads" {
+  name          = "fitness-bot-uploads"
+  location      = var.region
+  force_destroy = false
+
+  uniform_bucket_level_access = true
+
+  depends_on = [google_project_service.apis]
+}
+
+# Public read access for uploaded images
+resource "google_storage_bucket_iam_member" "uploads_public" {
+  bucket = google_storage_bucket.uploads.name
+  role   = "roles/storage.objectViewer"
+  member = "allUsers"
+}
+
+# Service account can write uploads
+resource "google_storage_bucket_iam_member" "uploads_writer" {
+  bucket = google_storage_bucket.uploads.name
+  role   = "roles/storage.objectCreator"
+  member = "serviceAccount:${google_service_account.bot.email}"
+}
+
+# ---------- Custom Domain Mapping ----------
+
+resource "google_cloud_run_domain_mapping" "admin" {
+  location = var.region
+  name     = "admin.100fitnessgym.kz"
+
+  metadata {
+    namespace = var.project_id
+  }
+
+  spec {
+    route_name = google_cloud_run_v2_service.admin.name
+  }
+
+  lifecycle {
+    ignore_changes = [
+      metadata[0].annotations,
+      metadata[0].labels,
+      spec[0].force_override,
+      spec[0].certificate_mode,
+    ]
+  }
+
+  depends_on = [google_cloud_run_v2_service.admin]
 }
