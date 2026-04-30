@@ -40,14 +40,12 @@ export const notificationService = {
     const typeLabel = booking.workoutType === 'INDIVIDUAL' ? 'Индивидуальная' : 'Групповая';
     const dateStr = new Date(booking.date).toLocaleDateString('ru-RU');
 
-    // Template body parameters:
-    // {{1}} = branch name, {{2}} = client phone, {{3}} = type, {{4}} = date, {{5}} = time
+    // Template body parameters (3 vars):
+    // {{1}} = branch name, {{2}} = client phone, {{3}} = date, time, type
     const params = [
       branch.name,
       booking.clientPhone,
-      typeLabel,
-      dateStr,
-      booking.timeSlot,
+      `${dateStr} в ${booking.timeSlot}, ${typeLabel}`,
     ];
 
     let lastError: Error | null = null;
