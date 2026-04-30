@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { updateGroupClass, toggleGroupClass } from '@/lib/actions';
 import { ScheduleEditor } from '@/components/schedule-editor';
 
@@ -22,12 +22,15 @@ interface ClassCardProps {
 export function ClassCard({ groupClass: c, trainers }: ClassCardProps) {
   const [editing, setEditing] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
-  async function handleSave(formData: FormData) {
-    await updateGroupClass(c.id, formData);
-    setSaved(true);
-    setEditing(false);
-    setTimeout(() => setSaved(false), 2000);
+  function handleSave(formData: FormData) {
+    startTransition(async () => {
+      await updateGroupClass(c.id, formData);
+      setSaved(true);
+      setEditing(false);
+      setTimeout(() => setSaved(false), 2000);
+    });
   }
 
   return (

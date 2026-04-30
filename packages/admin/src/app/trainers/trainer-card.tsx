@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { updateTrainer, toggleTrainer } from '@/lib/actions';
 import { ImageUpload } from '@/components/image-upload';
 
@@ -20,12 +20,15 @@ interface TrainerCardProps {
 export function TrainerCard({ trainer: t }: TrainerCardProps) {
   const [editing, setEditing] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
-  async function handleSave(formData: FormData) {
-    await updateTrainer(t.id, formData);
-    setSaved(true);
-    setEditing(false);
-    setTimeout(() => setSaved(false), 2000);
+  function handleSave(formData: FormData) {
+    startTransition(async () => {
+      await updateTrainer(t.id, formData);
+      setSaved(true);
+      setEditing(false);
+      setTimeout(() => setSaved(false), 2000);
+    });
   }
 
   return (

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 import { updateBroadcast, sendBroadcast } from '@/lib/actions';
 import { useRouter } from 'next/navigation';
 
@@ -45,11 +45,14 @@ export function BroadcastEditForm({ broadcast, branches }: { broadcast: Broadcas
   const [result, setResult] = useState<any>(null);
   const [filter, setFilter] = useState(broadcast.targetFilter);
   const [saved, setSaved] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
-  async function handleSave(formData: FormData) {
-    await updateBroadcast(broadcast.id, formData);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
+  function handleSave(formData: FormData) {
+    startTransition(async () => {
+      await updateBroadcast(broadcast.id, formData);
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2000);
+    });
   }
 
   async function handleSend() {
