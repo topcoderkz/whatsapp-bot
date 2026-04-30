@@ -53,8 +53,11 @@ whatsapp-bot/
 ## Confirmed Decisions
 
 - **WhatsApp API**: mock mode for dev (logs to console), real API via env vars in production
-- **Admin UI**: entirely in Russian
+- **Bot WhatsApp number**: +77086406121 (changed from +77752899276 — that number is now used by Байзакова branch manager on their phone)
+- **Admin UI**: entirely in Russian, mobile-responsive (hamburger menu on mobile)
+- **Admin panel domain**: admin.100fitnessgym.kz (Cloud Run domain mapping)
 - **Booking data**: phone auto-captured from WhatsApp, no name prompt
+- **Booking time selection**: 2-step flow — first pick period (Утро/Вечер), then specific slot — to stay within WhatsApp's 10-row list limit
 - **Soft deletes**: trainers, clients, branches use `is_active` flag (never hard delete)
 - **Price integrity**: `booking.price_at_booking` snapshots price at booking time
 - **Manager notifications**: WhatsApp template message to branch manager on every new booking
@@ -64,6 +67,7 @@ whatsapp-bot/
 - **CSV import**: semicolon-delimited, columns `ФИО;Телефон`, duplicates skipped by phone
 - **Inline editing**: trainers, classes, and broadcasts support inline editing from their list pages
 - **Reusable components**: `ImageUpload`, `ScheduleEditor`, `WorkingHoursInput` — all use hidden inputs so server actions need no changes
+- **Logout**: uses plain `<a>` tag (not Next.js `<Link>`) to prevent prefetch CORS errors; redirects to own domain via request headers
 
 ---
 
@@ -142,7 +146,7 @@ whatsapp-bot/
 | BOOKING_BRANCH | Select branch for booking | List message |
 | BOOKING_TYPE | Individual vs group | Reply buttons (2) |
 | BOOKING_DATE | Select date (next 7 days) | List message |
-| BOOKING_TIME | Select time slot | List message |
+| BOOKING_TIME | Select time period → time slot | Reply buttons → List message |
 | BOOKING_CONFIRM | Review + confirm | Reply buttons (2) |
 | GROUP_CLASSES | Class schedule per branch | List message |
 | CLASS_DETAIL | Class info | Text message |
@@ -158,7 +162,7 @@ whatsapp-bot/
 - **Reply buttons**: max 3 per message, title max 20 chars
 - **List messages**: max 10 rows total, title max 24 chars, description max 72 chars
 - **Template messages**: required outside 24h customer service window (manager notifications, broadcasts)
-- **Phone number**: bot number must NOT be on regular WhatsApp app simultaneously
+- **Phone number**: bot number (+77086406121) must NOT be on regular WhatsApp or WhatsApp Business app simultaneously
 - **Mock mode**: when `WHATSAPP_ACCESS_TOKEN` is empty, bot logs messages to console instead of sending
 
 ---
@@ -206,6 +210,14 @@ WA_TEMPLATE_BOOKING_NOTIFICATION=booking_notification
 WA_TEMPLATE_BOOKING_CONFIRMATION=booking_confirmation
 WA_TEMPLATE_BROADCAST=broadcast_message
 ```
+
+## Production URLs
+
+| Service | URL |
+|---------|-----|
+| Bot webhook | `https://fitness-bot-y55ljl45uq-uc.a.run.app/webhook` |
+| Admin panel | `https://admin.100fitnessgym.kz` |
+| Admin (Cloud Run direct) | `https://fitness-admin-y55ljl45uq-uc.a.run.app` |
 
 ---
 

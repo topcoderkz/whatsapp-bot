@@ -306,7 +306,9 @@ npx prisma studio
 
 ### 3. Привяжите номер телефона
 
-**ВАЖНО:** Номер для бота должен быть **отдельным** номером, который **НЕ зарегистрирован** в обычном WhatsApp или WhatsApp Business на телефоне. Купите отдельную SIM-карту для бота.
+**ВАЖНО:** Номер для бота (+77086406121) зарегистрирован на WhatsApp Cloud API и **НЕ может** быть одновременно использован в обычном WhatsApp или WhatsApp Business на телефоне.
+
+Другие номера филиалов (+77752899276 для Байзакова и т.д.) свободны для использования менеджерами на их телефонах.
 
 ### 4. Создайте шаблоны сообщений
 
@@ -335,9 +337,11 @@ npx prisma studio
 
 ```env
 WHATSAPP_ACCESS_TOKEN=ваш_токен_из_meta
-WHATSAPP_PHONE_NUMBER_ID=ваш_phone_number_id
+WHATSAPP_PHONE_NUMBER_ID=id_номера_телефона_бота
 WHATSAPP_VERIFY_TOKEN=придумайте_любой_секретный_текст
 ```
+
+**Production**: эти значения хранятся в `infrastructure/terraform.tfvars`, НЕ в .env файлах.
 
 Потом скопируйте во все три места:
 ```bash
@@ -349,7 +353,7 @@ cp .env packages/admin/.env
 
 В Meta Developer Console → WhatsApp → Configuration:
 
-- **Callback URL**: `https://ваш-домен.com/webhook`
+- **Callback URL**: `https://fitness-bot-y55ljl45uq-uc.a.run.app/webhook`
 - **Verify Token**: тот же текст что вы написали в `WHATSAPP_VERIFY_TOKEN`
 - **Webhook fields**: поставьте галочку на `messages`
 
@@ -427,10 +431,14 @@ Terraform создаст:
 
 В конце покажет URLs:
 ```
-bot_url    = "https://fitness-bot-xxxxx-uc.a.run.app"
-admin_url  = "https://fitness-admin-xxxxx-uc.a.run.app"
-webhook_url = "https://fitness-bot-xxxxx-uc.a.run.app/webhook"
+bot_url    = "https://fitness-bot-y55ljl45uq-uc.a.run.app"
+admin_url  = "https://fitness-admin-y55ljl45uq-uc.a.run.app"
+webhook_url = "https://fitness-bot-y55ljl45uq-uc.a.run.app/webhook"
 ```
+
+Админ-панель также доступна по домену **admin.100fitnessgym.kz** (Cloud Run domain mapping + SSL от Google).
+
+Бот работает с min 1 instance (нет холодных стартов, отвечает мгновенно).
 
 ### 5. Подключите GitHub → Cloud Build
 
@@ -523,12 +531,13 @@ gcloud run services update fitness-admin --region=us-central1 \
 
 | Сервис | Стоимость |
 |--------|-----------|
-| Cloud Run (бот + админка, минимальная нагрузка) | $0-5 |
+| Cloud Run бот (min 1 instance, всегда включён) | ~$5-10 |
+| Cloud Run админка (min 0, scale to zero) | $0-1 |
 | Cloud SQL (db-f1-micro) | ~$7 |
 | Artifact Registry | ~$0.10 |
 | Cloud Storage (изображения) | ~$0.01 |
 | Upstash Redis (free tier) | $0 |
-| **Итого** | **~$7-12** |
+| **Итого** | **~$12-18** |
 
 ---
 
@@ -730,7 +739,30 @@ docker-compose up -d
 ### Бот не отвечает в WhatsApp
 1. Проверьте что `WHATSAPP_ACCESS_TOKEN` не пустой в `.env`
 2. Проверьте что вебхук настроен правильно в Meta Developer Console
-3. Посмотрите логи: `pm2 logs fitness-bot`
+3. Посмотрите логи: `pm2 logs fitness-bot` (для Cloud Run: см. ниже)
+4. Если ошибка **401 Authentication Error** — токен истёк или был инвалидирован (например, при удалении номера из Meta). Сгенерируйте новый токен в Meta Business Suite → System Users и обновите в `terraform.tfvars`
+5. Если бот отвечает медленно (3-10 сек) — это холодный старт. Проверьте что `min_instance_count = 1` в terraform
+
+### Ошибка CORS при навигации в админ-панели
+Кнопка "Выйти" использует обычный `<a>` тег (не Next.js `<Link>`) чтобы избежать prefetch-ошибок. Logout редиректит на собственный домен через заголовки `Host` + `X-Forwarded-Proto`. Если всё равно есть CORS — проверьте что `packages/admin/src/app/api/logout/route.ts` не использует `request.nextUrl` (он содержит `0.0.0.0:8080` на Cloud Run).
+
+### Ошибки WhatsApp API
+- **(#100) Invalid parameter** — проверьте формат сообщений: список максимум 10 строк, кнопки максимум 3, заголовки кнопок до 20 символов
+- **(#131005) Access denied** — токен не имеет нужных разрешений (`whatsapp_business_messaging`)
+- **401 Authentication Error** — токен истёк, сгенерируйте новый в Meta Business Suite
+
+### Логи в production (Cloud Run)
+```bash
+# Логи бота
+gcloud logging read 'resource.type="cloud_run_revision" resource.labels.service_name="fitness-bot"' --limit 50
+
+# Логи админки
+gcloud logging read 'resource.type="cloud_run_revision" resource.labels.service_name="fitness-admin"' --limit 50
+
+# Перезапуск сервиса
+gcloud run services update fitness-bot --region us-central1 --no-traffic --tag temp
+gcloud run services update-traffic fitness-bot --region us-central1 --to-latest
+```
 
 ### Менеджер не получает уведомления о записи
 1. Проверьте что шаблон `booking_notification` одобрен в Meta
