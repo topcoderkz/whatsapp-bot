@@ -113,6 +113,10 @@ resource "google_cloud_run_v2_service" "bot" {
   template {
     service_account = google_service_account.bot.email
 
+    scaling {
+      min_instance_count = 1
+    }
+
     volumes {
       name = "cloudsql"
       cloud_sql_instance {
