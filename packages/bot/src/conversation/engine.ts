@@ -3,6 +3,7 @@ import { sessionStore, SessionData } from '../redis/session';
 import { State } from './states';
 
 // Screen handlers — each returns void and sends messages via whatsappClient
+import { handleLanguageSelection } from '../screens/language';
 import { handleWelcome } from '../screens/welcome';
 import { handleMainMenu } from '../screens/main-menu';
 import { handlePricesOverview } from '../screens/prices';
@@ -25,6 +26,7 @@ import { handlePromoDetail } from '../screens/promo-detail';
 type ScreenHandler = (input: UserInput, session: SessionData) => Promise<void>;
 
 const screenHandlers: Record<string, ScreenHandler> = {
+  [State.LANGUAGE_SELECTION]: handleLanguageSelection,
   [State.WELCOME]: handleWelcome,
   [State.MAIN_MENU]: handleMainMenu,
   [State.PRICES_OVERVIEW]: handlePricesOverview,
@@ -50,15 +52,21 @@ export const conversationEngine = {
     try {
       let session = await sessionStore.get(input.phone);
 
-      // New user or expired session → welcome
+      // New user or expired session → language selection first
       if (!session) {
-        session = { state: State.WELCOME, updatedAt: new Date().toISOString() };
+        session = { state: State.LANGUAGE_SELECTION, updatedAt: new Date().toISOString() };
         await sessionStore.set(input.phone, session);
+        await handleLanguageSelection(input, session);
+        return;
       }
 
       // Any text message that looks like a greeting → restart
       if (input.type === 'text' && isGreeting(input.text)) {
-        session = { state: State.WELCOME, updatedAt: new Date().toISOString() };
+        // If user has a language preference, go to welcome, otherwise language selection
+        session = {
+          state: session.language ? State.WELCOME : State.LANGUAGE_SELECTION,
+          updatedAt: new Date().toISOString()
+        };
         await sessionStore.set(input.phone, session);
       }
 
@@ -66,11 +74,12 @@ export const conversationEngine = {
       if (handler) {
         await handler(input, session);
       } else {
-        // Unknown state → reset to welcome
+        // Unknown state → reset to welcome (with language if set)
         console.warn(`[Engine] Unknown state: ${session.state}, resetting`);
-        session.state = State.WELCOME;
+        session.state = session.language ? State.WELCOME : State.LANGUAGE_SELECTION;
         await sessionStore.set(input.phone, session);
-        await handleWelcome(input, session);
+        const targetHandler = screenHandlers[session.state];
+        if (targetHandler) await targetHandler(input, session);
       }
     } catch (err) {
       console.error(`[Engine] Error handling message from ${input.phone}:`, err);
@@ -78,7 +87,7 @@ export const conversationEngine = {
       const { whatsappClient } = await import('../whatsapp/client');
       await whatsappClient.sendText(
         input.phone,
-        'Произошла ошибка. Пожалуйста, попробуйте ещё раз или напишите "Привет" для перезапуска.'
+        'Произошла ошибка. Пожалуйста, попробуйте ещё раз.'
       );
     }
   },
@@ -86,6 +95,13 @@ export const conversationEngine = {
 
 function isGreeting(text?: string): boolean {
   if (!text) return false;
-  const greetings = ['привет', 'здравствуйте', 'hi', 'hello', 'start', 'начать', 'меню', 'menu'];
+  const greetings = [
+    // Russian
+    'привет', 'здравствуйте', 'старт', 'начать', 'меню',
+    // Kazakh
+    'сәлем', 'салем', 'бастау',
+    // English
+    'hi', 'hello', 'start', 'menu',
+  ];
   return greetings.includes(text.toLowerCase().trim());
 }

@@ -3,8 +3,10 @@ import { SessionData, sessionStore } from '../redis/session';
 import { whatsappClient } from '../whatsapp/client';
 import { prisma } from '../db/client';
 import { State } from '../conversation/states';
+import { t, type Language } from '../locales';
 
 export async function handleBranchSelection(input: UserInput, session: SessionData): Promise<void> {
+  const lang = (session.language || 'ru') as Language;
   const selection = input.listId || input.buttonId;
 
   // Handle branch selection
@@ -45,18 +47,18 @@ export async function handleBranchSelection(input: UserInput, session: SessionDa
 
   await whatsappClient.sendList(
     input.phone,
-    'Выберите удобный филиал 🏋️‍♀️',
-    'Филиалы',
+    t(lang, 'branches.select'),
+    t(lang, 'select'),
     [
       {
-        title: 'Наши филиалы',
+        title: t(lang, 'branches.our_branches'),
         rows: [
           ...branches.map((b: any) => ({
             id: `branch_${b.id}`,
             title: `📍 ${b.name}`,
             description: b.address,
           })),
-          { id: 'back_main', title: '⬅️ Назад', description: 'В главное меню' },
+          { id: 'back_main', title: t(lang, 'back'), description: lang === 'en' ? 'To main menu' : lang === 'kk' ? 'Басты мәзірге' : 'В главное меню' },
         ],
       },
     ]

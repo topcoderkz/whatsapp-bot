@@ -6,6 +6,7 @@ const PREFIX = 'session:';
 
 export interface SessionData {
   state: string;
+  language?: 'ru' | 'kk' | 'en';
   branchId?: number;
   previousState?: string;
   booking?: {

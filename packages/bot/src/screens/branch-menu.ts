@@ -3,8 +3,10 @@ import { SessionData, sessionStore } from '../redis/session';
 import { whatsappClient } from '../whatsapp/client';
 import { prisma } from '../db/client';
 import { State } from '../conversation/states';
+import { t, type Language } from '../locales';
 
 export async function handleBranchMenu(input: UserInput, session: SessionData): Promise<void> {
+  const lang = (session.language || 'ru') as Language;
   const selection = input.listId || input.buttonId;
 
   if (selection === 'bmenu_prices') {
@@ -55,19 +57,45 @@ export async function handleBranchMenu(input: UserInput, session: SessionData): 
     return;
   }
 
+  // Localized menu items
+  const menuItems = {
+    prices: {
+      title: t(lang, 'branchMenu.prices'),
+      description: lang === 'kk' ? 'Абонементтер мен тарифтер' : lang === 'en' ? 'Memberships & rates' : 'Абонементы и тарифы'
+    },
+    classes: {
+      title: t(lang, 'branchMenu.classes'),
+      description: lang === 'kk' ? 'Сабақ кестесі' : lang === 'en' ? 'Class schedule' : 'Расписание занятий'
+    },
+    trainers: {
+      title: t(lang, 'branchMenu.trainers'),
+      description: lang === 'kk' ? 'Мамандар' : lang === 'en' ? 'Our specialists' : 'Наши специалисты'
+    },
+    manager: {
+      title: t(lang, 'branchMenu.manager'),
+      description: lang === 'kk' ? 'Байланыс' : lang === 'en' ? 'Contact' : 'Связаться'
+    },
+    back: {
+      title: t(lang, 'back'),
+      description: lang === 'kk' ? 'Филиалды таңдауға' : lang === 'en' ? 'To branch selection' : 'К выбору филиала'
+    },
+  };
+
+  const selectedText = lang === 'kk' ? 'Сіз таңдадыңыз:' : lang === 'en' ? 'You selected:' : 'Вы выбрали:';
+
   await whatsappClient.sendList(
     input.phone,
-    `Вы выбрали филиал на ${branch.name} 🏋️‍♀️\nАдрес: ${branch.address}\n\nЧто вас интересует?`,
-    'Выбрать',
+    `${t(lang, 'branchMenu.selected')} ${branch.name} 🏋️‍♀️\n${t(lang, 'branchMenu.address')} ${branch.address}\n\n${t(lang, 'branchMenu.interested')}`,
+    t(lang, 'select'),
     [
       {
         title: branch.name,
         rows: [
-          { id: 'bmenu_prices', title: '📋 Цены', description: 'Абонементы и тарифы' },
-          { id: 'bmenu_classes', title: '👥 Групповые', description: 'Расписание занятий' },
-          { id: 'bmenu_trainers', title: '👨‍🏫 Тренеры', description: 'Наши специалисты' },
-          { id: 'bmenu_manager', title: '📞 Менеджер', description: 'Связаться' },
-          { id: 'back_branches', title: '⬅️ Назад', description: 'К выбору филиала' },
+          { id: 'bmenu_prices', title: menuItems.prices.title, description: menuItems.prices.description },
+          { id: 'bmenu_classes', title: menuItems.classes.title, description: menuItems.classes.description },
+          { id: 'bmenu_trainers', title: menuItems.trainers.title, description: menuItems.trainers.description },
+          { id: 'bmenu_manager', title: menuItems.manager.title, description: menuItems.manager.description },
+          { id: 'back_branches', title: menuItems.back.title, description: menuItems.back.description },
         ],
       },
     ]
