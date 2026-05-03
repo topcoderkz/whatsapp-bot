@@ -13,12 +13,12 @@ export function TrainerCard({ trainer, dict }: { trainer: Trainer; dict: Landing
   return (
     <div className="bg-surface-card border border-border-subtle rounded-2xl overflow-hidden hover:border-brand/50 transition-all group">
       {/* Photo area */}
-      <div className="relative h-64 bg-gradient-to-br from-surface-2 to-surface-card flex items-center justify-center overflow-hidden">
+      <div className="relative aspect-[3/4] bg-gradient-to-br from-surface-2 to-surface-card flex items-center justify-center overflow-hidden">
         {trainer.photoUrl ? (
           <img
             src={trainer.photoUrl}
             alt={trainer.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            className="w-full h-full object-contain bg-surface-2 group-hover:scale-105 transition-transform duration-500"
           />
         ) : (
           <div className="relative">

@@ -8,8 +8,20 @@ type Branch = {
   workingHours: string;
 };
 
+// Map branch addresses to their direct 2GIS short links
+const GIS_LINKS: Record<string, string> = {
+  'Байзакова 280, 3 этаж': 'https://go.2gis.com/bLzQu',
+  'Кожамкулова 136': 'https://go.2gis.com/Ocamg',
+  'Кабанбай батыра 147': 'https://go.2gis.com/3eviR',
+  'Макатаева 45, 3 этаж': 'https://go.2gis.com/ELcw6',
+};
+
+function getMapUrl(address: string): string {
+  return GIS_LINKS[address] || `https://2gis.kz/almaty/search/${encodeURIComponent(address)}`;
+}
+
 export function BranchCard({ branch, dict }: { branch: Branch; dict: LandingTranslations }) {
-  const mapUrl = `https://2gis.kz/almaty/search/${encodeURIComponent(branch.address)}`;
+  const mapUrl = getMapUrl(branch.address);
 
   return (
     <div className="bg-surface-card border border-border-subtle rounded-2xl overflow-hidden hover:border-brand/50 transition-all group">
@@ -21,41 +33,41 @@ export function BranchCard({ branch, dict }: { branch: Branch; dict: LandingTran
       </div>
 
       <div className="p-6">
-      {/* Header with orange accent */}
-      <div className="flex items-start gap-4">
-        <div className="shrink-0 w-12 h-12 bg-brand/10 rounded-xl flex items-center justify-center text-brand text-xl group-hover:bg-brand/20 transition-colors">
-          📍
+        {/* Header with orange accent */}
+        <div className="flex items-start gap-4">
+          <div className="shrink-0 w-12 h-12 bg-brand/10 rounded-xl flex items-center justify-center text-brand text-xl group-hover:bg-brand/20 transition-colors">
+            📍
+          </div>
+          <div>
+            <h3 className="text-lg font-bold text-white">{branch.name}</h3>
+            <p className="text-sm text-gray-400 mt-1">{branch.address}</p>
+          </div>
         </div>
-        <div>
-          <h3 className="text-lg font-bold text-white">{branch.name}</h3>
-          <p className="text-sm text-gray-400 mt-1">{branch.address}</p>
-        </div>
-      </div>
 
-      <div className="mt-5 space-y-3">
-        <div className="flex items-center gap-3 text-sm">
-          <span className="text-gray-500">{dict.branches.phone}:</span>
-          <a href={`tel:${branch.phone}`} className="text-gray-300 hover:text-brand transition-colors">
-            {branch.phone}
-          </a>
+        <div className="mt-5 space-y-3">
+          <div className="flex items-center gap-3 text-sm">
+            <span className="text-gray-500">{dict.branches.phone}:</span>
+            <a href={`tel:${branch.phone}`} className="text-gray-300 hover:text-brand transition-colors">
+              {branch.phone}
+            </a>
+          </div>
+          <div className="flex items-center gap-3 text-sm">
+            <span className="text-gray-500">{dict.branches.hours}:</span>
+            <span className="text-gray-300">{branch.workingHours}</span>
+          </div>
         </div>
-        <div className="flex items-center gap-3 text-sm">
-          <span className="text-gray-500">{dict.branches.hours}:</span>
-          <span className="text-gray-300">{branch.workingHours}</span>
-        </div>
-      </div>
 
-      <a
-        href={mapUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="mt-5 inline-flex items-center gap-2 text-sm text-brand hover:text-brand-light transition-colors"
-      >
-        {dict.branches.view_map}
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-        </svg>
-      </a>
+        <a
+          href={mapUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-5 inline-flex items-center gap-2 text-sm text-brand hover:text-brand-light transition-colors"
+        >
+          {dict.branches.view_map} — 2GIS
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        </a>
       </div>
     </div>
   );
