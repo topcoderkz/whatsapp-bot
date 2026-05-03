@@ -31,7 +31,8 @@ WORKDIR /app
 # Copy standalone Next.js output
 COPY --from=build /app/packages/landing/.next/standalone ./
 COPY --from=build /app/packages/landing/.next/static ./packages/landing/.next/static
-COPY --from=build /app/packages/landing/public ./packages/landing/public
+# public/ may be empty during initial builds — create it so the server doesn't error
+RUN mkdir -p ./packages/landing/public
 
 RUN chown -R appuser:appgroup /app
 USER appuser
