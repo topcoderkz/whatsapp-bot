@@ -82,6 +82,28 @@ resource "google_sql_user" "fitness" {
 
 # ---------- Secret Manager (DATABASE_URL for Cloud Build migrations) ----------
 
+resource "google_secret_manager_secret" "db_password" {
+  secret_id = "fitness-db-password"
+
+  replication {
+    auto {}
+  }
+
+  depends_on = [google_project_service.apis]
+}
+
+resource "google_secret_manager_secret_version" "db_password" {
+  secret      = google_secret_manager_secret.db_password.id
+  secret_data = var.db_password
+}
+
+# Grant Cloud Build access to the DB password secret
+resource "google_secret_manager_secret_iam_member" "cloudbuild_db_password" {
+  secret_id = google_secret_manager_secret.db_password.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${data.google_project.current.number}@cloudbuild.gserviceaccount.com"
+}
+
 resource "google_secret_manager_secret" "database_url" {
   secret_id = "DATABASE_URL"
 

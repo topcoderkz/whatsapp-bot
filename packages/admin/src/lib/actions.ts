@@ -311,3 +311,22 @@ export async function sendBroadcast(broadcastId: number) {
     return { error: 'Бот не запущен. Запустите бот и попробуйте снова.' };
   }
 }
+
+export async function deleteBroadcast(broadcastId: number) {
+  const existing = await prisma.broadcastMessage.findUnique({ where: { id: broadcastId } });
+  if (!existing) {
+    throw new Error('Рассылка не найдена');
+  }
+
+  // Delete related notification logs first (foreign key constraint)
+  await prisma.notificationLog.deleteMany({
+    where: { broadcastId },
+  });
+
+  // Delete the broadcast
+  await prisma.broadcastMessage.delete({
+    where: { id: broadcastId },
+  });
+
+  revalidatePath('/broadcasts');
+}

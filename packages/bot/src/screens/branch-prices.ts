@@ -21,12 +21,16 @@ export async function handleBranchPrices(input: UserInput, session: SessionData)
     return;
   }
 
-  const branch = session.branchId
-    ? await (prisma as any).branch.findFirst({
-        where: { id: session.branchId },
-        include: { priceImage: true },
-      })
-    : null;
+  const branchId = session.branchId;
+  if (!branchId) {
+    await sessionStore.update(input.phone, { state: State.BRANCH_SELECTION, previousState: State.BRANCH_MENU });
+    const { handleBranchSelection } = await import('./branch-selection');
+    await handleBranchSelection(input, session);
+    return;
+  }
+
+  // Get branch without priceImage relation (for compatibility)
+  const branch = await (prisma as any).branch.findFirst({ where: { id: branchId } });
 
   if (!branch) {
     await sessionStore.update(input.phone, { state: State.BRANCH_SELECTION, previousState: State.BRANCH_MENU });
@@ -35,11 +39,21 @@ export async function handleBranchPrices(input: UserInput, session: SessionData)
     return;
   }
 
+  // Try to get price image separately (migration may not be applied yet)
+  let priceImageUrl: string | null = null;
+  try {
+    const priceImage = await (prisma as any).priceImage.findUnique({ where: { branchId } });
+    priceImageUrl = priceImage?.imageUrl || null;
+  } catch {
+    // Table doesn't exist yet (migration not applied)
+    priceImageUrl = null;
+  }
+
   // Send price image if available
-  if (branch.priceImage?.imageUrl) {
+  if (priceImageUrl) {
     await whatsappClient.sendImage(
       input.phone,
-      branch.priceImage.imageUrl,
+      priceImageUrl,
       `Прайс-лист ${branch.name}`
     );
   } else {
