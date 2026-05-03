@@ -8,6 +8,7 @@ const navItems = [
   { href: '/', label: 'Панель управления', icon: '📊' },
   { href: '/branches', label: 'Филиалы', icon: '📍' },
   { href: '/pricing', label: 'Цены', icon: '💰' },
+  { href: '/price-images', label: 'Прайс-изображения', icon: '🖼️' },
   { href: '/trainers', label: 'Тренеры', icon: '👨‍🏫' },
   { href: '/classes', label: 'Групповые', icon: '👥' },
   { href: '/promotions', label: 'Акции', icon: '🎁' },

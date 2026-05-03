@@ -8,7 +8,7 @@ import { handleMainMenu } from '../screens/main-menu';
 import { handlePricesOverview } from '../screens/prices';
 import { handleBranchSelection } from '../screens/branch-selection';
 import { handleBranchMenu } from '../screens/branch-menu';
-import { handleBranchPrices, handleBranchPricesMonthly, handleBranchPricesLongterm } from '../screens/branch-prices';
+import { handleBranchPrices } from '../screens/branch-prices';
 import { handleContactManager } from '../screens/contact-manager';
 import { handleBookingBranch } from '../screens/booking-branch';
 import { handleBookingType } from '../screens/booking-type';
@@ -31,8 +31,6 @@ const screenHandlers: Record<string, ScreenHandler> = {
   [State.BRANCH_SELECTION]: handleBranchSelection,
   [State.BRANCH_MENU]: handleBranchMenu,
   [State.BRANCH_PRICES]: handleBranchPrices,
-  [State.BRANCH_PRICES_MONTHLY]: handleBranchPricesMonthly,
-  [State.BRANCH_PRICES_LONGTERM]: handleBranchPricesLongterm,
   [State.CONTACT_MANAGER]: handleContactManager,
   [State.BOOKING_BRANCH]: handleBookingBranch,
   [State.BOOKING_TYPE]: handleBookingType,

@@ -6,15 +6,25 @@ interface ImageUploadProps {
   name: string;
   currentUrl?: string | null;
   className?: string;
+  onImageUploaded?: (url: string) => void;
+  onImageCleared?: () => void;
 }
 
-export function ImageUpload({ name, currentUrl, className }: ImageUploadProps) {
+export function ImageUpload({ name, currentUrl, className, onImageUploaded, onImageCleared }: ImageUploadProps) {
   const [previewUrl, setPreviewUrl] = useState<string | null>(currentUrl || null);
   const [uploadedUrl, setUploadedUrl] = useState<string>(currentUrl || '');
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const initializedRef = useRef(false);
+
+  // Initialize on mount (only once)
+  if (!initializedRef.current && currentUrl) {
+    setUploadedUrl(currentUrl);
+    setPreviewUrl(currentUrl);
+    initializedRef.current = true;
+  }
 
   async function handleFile(file: File) {
     setError(null);
@@ -43,16 +53,20 @@ export function ImageUpload({ name, currentUrl, className }: ImageUploadProps) {
 
       if (!res.ok) {
         setError(data.error || 'Ошибка загрузки');
-        setPreviewUrl(currentUrl || null);
-        setUploadedUrl(currentUrl || '');
+        setPreviewUrl(uploadedUrl || null);
+        setUploadedUrl(uploadedUrl);
       } else {
         setUploadedUrl(data.url);
         setPreviewUrl(data.url);
+        // Only call callback if URL actually changed
+        if (data.url !== currentUrl) {
+          onImageUploaded?.(data.url);
+        }
       }
     } catch {
       setError('Ошибка загрузки. Попробуйте снова.');
-      setPreviewUrl(currentUrl || null);
-      setUploadedUrl(currentUrl || '');
+      setPreviewUrl(uploadedUrl || null);
+      setUploadedUrl(uploadedUrl);
     }
 
     URL.revokeObjectURL(localPreview);
@@ -76,6 +90,7 @@ export function ImageUpload({ name, currentUrl, className }: ImageUploadProps) {
     setUploadedUrl('');
     setError(null);
     if (inputRef.current) inputRef.current.value = '';
+    onImageCleared?.();
   }
 
   return (
