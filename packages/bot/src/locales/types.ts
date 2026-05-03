@@ -35,6 +35,8 @@ export interface Translations {
     ru: string;
     kk: string;
     en: string;
+    change: string;
+    change_desc: string;
   };
 
   // Branches
@@ -55,24 +57,42 @@ export interface Translations {
     longterm: string;
     contact_manager: string;
     not_available: string;
+    no_image: string;
+    special_offers: string;
+    need_help: string;
+    currency: string;
   };
 
   // Booking
   booking: {
+    title: string;
     select_branch: string;
     type: {
       title: string;
       individual: string;
       group: string;
+      individual_label: string;
+      group_label: string;
     };
     date: {
       title: string;
       select_day: string;
+      dates: string;
+      upcoming: string;
     };
     time: {
       title: string;
       morning: string;
       evening: string;
+      select: string;
+      morning_slots: string;
+      evening_slots: string;
+      morning_period: string;
+      evening_period: string;
+      morning_range: string;
+      evening_range: string;
+      time_label: string;
+      date_label: string;
     };
     confirm: {
       title: string;
@@ -83,6 +103,12 @@ export interface Translations {
       time: string;
       confirm: string;
       cancel: string;
+      all_correct: string;
+      success_title: string;
+      manager_contact: string;
+      incomplete: string;
+      error_message: string;
+      edit: string;
     };
     success: string;
     cancelled: string;
@@ -99,12 +125,25 @@ export interface Translations {
     manager: string;
   };
 
+  // Navigation
+  nav: {
+    main_menu: string;
+    branch_menu: string;
+    to_main: string;
+    to_branch: string;
+  };
+
   // Trainers
   trainers: {
     title: string;
     specialization: string;
     experience: string;
     experience_years: string;
+    no_trainers: string;
+    contact_manager: string;
+    select_trainer: string;
+    not_found: string;
+    back_to_trainers: string;
   };
 
   // Classes
@@ -113,6 +152,14 @@ export interface Translations {
     schedule: string;
     capacity: string;
     not_set: string;
+    no_classes: string;
+    contact_manager: string;
+    select_class: string;
+    classes_label: string;
+    trainer_label: string;
+    not_found: string;
+    back_to_classes: string;
+    check_manager: string;
   };
 
   // Promotions
@@ -121,6 +168,11 @@ export interface Translations {
     conditions: string;
     valid: string;
     no_promos: string;
+    no_active: string;
+    follow_updates: string;
+    current: string;
+    not_found: string;
+    back_to_promos: string;
   };
 
   // Manager
@@ -129,10 +181,18 @@ export interface Translations {
     our_manager: string;
     phone: string;
     write: string;
+    branch_manager: string;
+    call_or_write: string;
   };
 
   // Generic
   no_results: string;
   try_again: string;
   contact_for_help: string;
+
+  // Date formatting (comma-separated)
+  dates: {
+    days_short: string;
+    months_short: string;
+  };
 }

@@ -3,8 +3,10 @@ import { SessionData, sessionStore } from '../redis/session';
 import { whatsappClient } from '../whatsapp/client';
 import { prisma } from '../db/client';
 import { State } from '../conversation/states';
+import { t, type Language } from '../locales';
 
 export async function handleTrainers(input: UserInput, session: SessionData): Promise<void> {
+  const lang = (session.language || 'ru') as Language;
   const selection = input.listId || input.buttonId;
 
   if (selection?.startsWith('trainer_')) {
@@ -37,26 +39,26 @@ export async function handleTrainers(input: UserInput, session: SessionData): Pr
   if (trainers.length === 0) {
     await whatsappClient.sendButtons(
       input.phone,
-      'Информация о тренерах скоро появится 👨‍🏫\n\nСвяжитесь с менеджером для уточнения.',
+      `${t(lang, 'trainers.no_trainers')}\n\n${t(lang, 'trainers.contact_manager')}`,
       [
-        { id: 'back_bmenu', title: '⬅️ Назад' },
+        { id: 'back_bmenu', title: t(lang, 'back') },
       ]
     );
     return;
   }
 
-  const rows = trainers.slice(0, 9).map((t: any) => ({
-    id: `trainer_${t.id}`,
-    title: t.name.slice(0, 24),
-    description: t.specialization?.slice(0, 72) || undefined,
+  const rows = trainers.slice(0, 9).map((tr: any) => ({
+    id: `trainer_${tr.id}`,
+    title: tr.name.slice(0, 24),
+    description: tr.specialization?.slice(0, 72) || undefined,
   }));
 
-  rows.push({ id: 'back_bmenu', title: '⬅️ Назад', description: 'В меню филиала' });
+  rows.push({ id: 'back_bmenu', title: t(lang, 'back'), description: t(lang, 'nav.to_branch') });
 
   await whatsappClient.sendList(
     input.phone,
-    'Наши тренеры 👨‍🏫\n\nВыберите тренера для подробной информации:',
-    'Тренеры',
-    [{ title: 'Тренеры', rows }]
+    `${t(lang, 'trainers.title')} 👨‍🏫\n\n${t(lang, 'trainers.select_trainer')}`,
+    t(lang, 'trainers.title'),
+    [{ title: t(lang, 'trainers.title'), rows }]
   );
 }

@@ -65,6 +65,7 @@ export const conversationEngine = {
         // If user has a language preference, go to welcome, otherwise language selection
         session = {
           state: session.language ? State.WELCOME : State.LANGUAGE_SELECTION,
+          language: session.language,
           updatedAt: new Date().toISOString()
         };
         await sessionStore.set(input.phone, session);
@@ -83,12 +84,12 @@ export const conversationEngine = {
       }
     } catch (err) {
       console.error(`[Engine] Error handling message from ${input.phone}:`, err);
-      // Send a generic error message
+      // Send a generic error message in user's language
       const { whatsappClient } = await import('../whatsapp/client');
-      await whatsappClient.sendText(
-        input.phone,
-        'Произошла ошибка. Пожалуйста, попробуйте ещё раз.'
-      );
+      const { t } = await import('../locales');
+      const session = await sessionStore.get(input.phone);
+      const lang = (session?.language || 'ru') as 'ru' | 'kk' | 'en';
+      await whatsappClient.sendText(input.phone, t(lang, 'error'));
     }
   },
 };

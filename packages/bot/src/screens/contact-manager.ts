@@ -3,8 +3,10 @@ import { SessionData, sessionStore } from '../redis/session';
 import { whatsappClient } from '../whatsapp/client';
 import { prisma } from '../db/client';
 import { State } from '../conversation/states';
+import { t, type Language } from '../locales';
 
 export async function handleContactManager(input: UserInput, session: SessionData): Promise<void> {
+  const lang = (session.language || 'ru') as Language;
   const selection = input.listId || input.buttonId;
 
   if (selection === 'back_bmenu') {
@@ -35,10 +37,10 @@ export async function handleContactManager(input: UserInput, session: SessionDat
 
   await whatsappClient.sendButtons(
     input.phone,
-    `Менеджер филиала ${branch.name} 📞\n\nАдрес: ${branch.address}\nТелефон: ${branch.managerPhone}\n\nВы можете позвонить или написать в WhatsApp по номеру выше.`,
+    `${t(lang, 'manager.branch_manager')} ${branch.name} 📞\n\n${t(lang, 'branchMenu.address')} ${branch.address}\n${t(lang, 'manager.phone')} ${branch.managerPhone}\n\n${t(lang, 'manager.call_or_write')}`,
     [
-      { id: 'back_bmenu', title: '⬅️ В меню филиала' },
-      { id: 'back_main', title: '🏠 Главное меню' },
+      { id: 'back_bmenu', title: t(lang, 'nav.branch_menu') },
+      { id: 'back_main', title: t(lang, 'nav.main_menu') },
     ]
   );
 }

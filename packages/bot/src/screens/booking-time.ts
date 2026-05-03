@@ -2,6 +2,7 @@ import { UserInput } from '../whatsapp/types';
 import { SessionData, sessionStore } from '../redis/session';
 import { whatsappClient } from '../whatsapp/client';
 import { State } from '../conversation/states';
+import { t, type Language } from '../locales';
 
 const TIME_SLOTS = [
   '07:00', '08:00', '09:00', '10:00', '11:00',
@@ -10,6 +11,7 @@ const TIME_SLOTS = [
 ];
 
 export async function handleBookingTime(input: UserInput, session: SessionData): Promise<void> {
+  const lang = (session.language || 'ru') as Language;
   const selection = input.listId || input.buttonId;
 
   // User picked a specific time slot — proceed to confirmation
@@ -37,17 +39,17 @@ export async function handleBookingTime(input: UserInput, session: SessionData):
       session = { ...session, booking: { ...session.booking, timePeriod: 'morning' } };
       await sessionStore.update(input.phone, { booking: session.booking });
     }
-    const slots = TIME_SLOTS.filter((t) => parseInt(t) < 13);
+    const slots = TIME_SLOTS.filter((s) => parseInt(s) < 13);
     await whatsappClient.sendList(
       input.phone,
-      `Утренние слоты ⏰\nДата: ${session.booking?.date || ''}`,
-      'Время',
+      `${t(lang, 'booking.time.morning_slots')}\n${t(lang, 'booking.time.date_label')} ${session.booking?.date || ''}`,
+      t(lang, 'booking.time.time_label'),
       [
         {
-          title: 'Утро (07:00–12:00)',
+          title: t(lang, 'booking.time.morning_range'),
           rows: [
-            ...slots.map((t) => ({ id: `btime_${t}`, title: t })),
-            { id: 'back_btime_period', title: '⬅️ Назад' },
+            ...slots.map((s) => ({ id: `btime_${s}`, title: s })),
+            { id: 'back_btime_period', title: t(lang, 'back') },
           ],
         },
       ]
@@ -60,17 +62,17 @@ export async function handleBookingTime(input: UserInput, session: SessionData):
       session = { ...session, booking: { ...session.booking, timePeriod: 'evening' } };
       await sessionStore.update(input.phone, { booking: session.booking });
     }
-    const slots = TIME_SLOTS.filter((t) => parseInt(t) >= 13);
+    const slots = TIME_SLOTS.filter((s) => parseInt(s) >= 13);
     await whatsappClient.sendList(
       input.phone,
-      `Дневные/вечерние слоты ⏰\nДата: ${session.booking?.date || ''}`,
-      'Время',
+      `${t(lang, 'booking.time.evening_slots')}\n${t(lang, 'booking.time.date_label')} ${session.booking?.date || ''}`,
+      t(lang, 'booking.time.time_label'),
       [
         {
-          title: 'День/Вечер (13:00–21:00)',
+          title: t(lang, 'booking.time.evening_range'),
           rows: [
-            ...slots.map((t) => ({ id: `btime_${t}`, title: t })),
-            { id: 'back_btime_period', title: '⬅️ Назад' },
+            ...slots.map((s) => ({ id: `btime_${s}`, title: s })),
+            { id: 'back_btime_period', title: t(lang, 'back') },
           ],
         },
       ]
@@ -90,11 +92,11 @@ export async function handleBookingTime(input: UserInput, session: SessionData):
   // Step 1: Show period selection (reply buttons — max 3)
   await whatsappClient.sendButtons(
     input.phone,
-    `Выберите время тренировки ⏰\nДата: ${session.booking?.date || ''}`,
+    `${t(lang, 'booking.time.select')}\n${t(lang, 'booking.time.date_label')} ${session.booking?.date || ''}`,
     [
-      { id: 'period_morning', title: 'Утро 07–12' },
-      { id: 'period_evening', title: 'День/Вечер 13–21' },
-      { id: 'back_bdate', title: '⬅️ Назад' },
+      { id: 'period_morning', title: t(lang, 'booking.time.morning_period') },
+      { id: 'period_evening', title: t(lang, 'booking.time.evening_period') },
+      { id: 'back_bdate', title: t(lang, 'back') },
     ]
   );
 }

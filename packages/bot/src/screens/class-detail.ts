@@ -3,8 +3,10 @@ import { SessionData, sessionStore } from '../redis/session';
 import { whatsappClient } from '../whatsapp/client';
 import { prisma } from '../db/client';
 import { State } from '../conversation/states';
+import { t, type Language } from '../locales';
 
 export async function handleClassDetail(input: UserInput, session: SessionData, classId?: number): Promise<void> {
+  const lang = (session.language || 'ru') as Language;
   const selection = input.listId || input.buttonId;
 
   if (selection === 'back_classes') {
@@ -34,7 +36,7 @@ export async function handleClassDetail(input: UserInput, session: SessionData, 
   });
 
   if (!groupClass) {
-    await whatsappClient.sendText(input.phone, 'Занятие не найдено.');
+    await whatsappClient.sendText(input.phone, t(lang, 'classes.not_found'));
     await sessionStore.update(input.phone, { state: State.GROUP_CLASSES });
     const { handleGroupClasses } = await import('./group-classes');
     await handleGroupClasses(input, session);
@@ -49,16 +51,16 @@ export async function handleClassDetail(input: UserInput, session: SessionData, 
 
   let text = `${groupClass.name} 👥\n\n`;
   if (groupClass.description) text += `${groupClass.description}\n\n`;
-  if (groupClass.trainer) text += `👨‍🏫 Тренер: ${groupClass.trainer.name}\n`;
-  if (groupClass.capacity) text += `👥 Мест: ${groupClass.capacity}\n`;
-  text += `\n📅 Расписание:\n${scheduleLines || 'Уточняйте у менеджера'}`;
+  if (groupClass.trainer) text += `👨‍🏫 ${t(lang, 'classes.trainer_label')} ${groupClass.trainer.name}\n`;
+  if (groupClass.capacity) text += `👥 ${t(lang, 'classes.capacity')}: ${groupClass.capacity}\n`;
+  text += `\n📅 ${t(lang, 'classes.schedule')}:\n${scheduleLines || t(lang, 'classes.check_manager')}`;
 
   await whatsappClient.sendButtons(
     input.phone,
     text,
     [
-      { id: 'back_classes', title: '⬅️ К занятиям' },
-      { id: 'back_bmenu', title: '🏠 Меню филиала' },
+      { id: 'back_classes', title: t(lang, 'classes.back_to_classes') },
+      { id: 'back_bmenu', title: t(lang, 'nav.branch_menu') },
     ]
   );
 }

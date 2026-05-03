@@ -3,8 +3,10 @@ import { SessionData, sessionStore } from '../redis/session';
 import { whatsappClient } from '../whatsapp/client';
 import { prisma } from '../db/client';
 import { State } from '../conversation/states';
+import { t, type Language } from '../locales';
 
 export async function handleBranchPrices(input: UserInput, session: SessionData): Promise<void> {
+  const lang = (session.language || 'ru') as Language;
   const selection = input.listId || input.buttonId;
 
   if (selection === 'bp_manager') {
@@ -54,22 +56,23 @@ export async function handleBranchPrices(input: UserInput, session: SessionData)
     await whatsappClient.sendImage(
       input.phone,
       priceImageUrl,
-      `Прайс-лист ${branch.name}`
+      `${t(lang, 'prices.title')} ${branch.name}`
     );
   } else {
     // Fallback: send text message if no image
-    await whatsappClient.sendText(
-      input.phone,
-      `Прайс-лист для ${branch.name} временно недоступен в виде изображения.\n\nПожалуйста, свяжитесь с менеджером для получения актуальной информации о ценах.`
+    const fallbackText = t(lang, 'prices.no_image').replace(
+      /\n\n.+$/,
+      `\n\n${t(lang, 'prices.contact_manager')}`
     );
+    await whatsappClient.sendText(input.phone, `${branch.name}\n\n${fallbackText}`);
   }
 
   await whatsappClient.sendButtons(
     input.phone,
-    'Нужна помощь или хотите записаться?',
+    t(lang, 'prices.need_help'),
     [
-      { id: 'bp_manager', title: '📞 Менеджер' },
-      { id: 'back_bmenu', title: '🏠 Меню филиала' },
+      { id: 'bp_manager', title: t(lang, 'manager.title') },
+      { id: 'back_bmenu', title: t(lang, 'nav.branch_menu') },
     ]
   );
 

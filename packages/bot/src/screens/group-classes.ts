@@ -3,8 +3,10 @@ import { SessionData, sessionStore } from '../redis/session';
 import { whatsappClient } from '../whatsapp/client';
 import { prisma } from '../db/client';
 import { State } from '../conversation/states';
+import { t, type Language } from '../locales';
 
 export async function handleGroupClasses(input: UserInput, session: SessionData): Promise<void> {
+  const lang = (session.language || 'ru') as Language;
   const selection = input.listId || input.buttonId;
 
   if (selection?.startsWith('class_')) {
@@ -38,9 +40,9 @@ export async function handleGroupClasses(input: UserInput, session: SessionData)
   if (classes.length === 0) {
     await whatsappClient.sendButtons(
       input.phone,
-      'Расписание групповых занятий пока формируется 📋\n\nСвяжитесь с менеджером для уточнения.',
+      `${t(lang, 'classes.no_classes')}\n\n${t(lang, 'classes.contact_manager')}`,
       [
-        { id: 'back_bmenu', title: '⬅️ Назад' },
+        { id: 'back_bmenu', title: t(lang, 'back') },
       ]
     );
     return;
@@ -49,15 +51,15 @@ export async function handleGroupClasses(input: UserInput, session: SessionData)
   const rows = classes.slice(0, 9).map((c: any) => ({
     id: `class_${c.id}`,
     title: c.name.slice(0, 24),
-    description: c.trainer ? `Тренер: ${c.trainer.name}` : undefined,
+    description: c.trainer ? `${t(lang, 'classes.trainer_label')} ${c.trainer.name}` : undefined,
   }));
 
-  rows.push({ id: 'back_bmenu', title: '⬅️ Назад', description: 'В меню филиала' });
+  rows.push({ id: 'back_bmenu', title: t(lang, 'back'), description: t(lang, 'nav.to_branch') });
 
   await whatsappClient.sendList(
     input.phone,
-    'Групповые занятия 👥\n\nВыберите занятие для подробной информации:',
-    'Занятия',
-    [{ title: 'Расписание', rows }]
+    `${t(lang, 'classes.title')} 👥\n\n${t(lang, 'classes.select_class')}`,
+    t(lang, 'classes.classes_label'),
+    [{ title: t(lang, 'classes.schedule'), rows }]
   );
 }

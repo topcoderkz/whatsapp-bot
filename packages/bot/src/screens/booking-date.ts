@@ -2,21 +2,21 @@ import { UserInput } from '../whatsapp/types';
 import { SessionData, sessionStore } from '../redis/session';
 import { whatsappClient } from '../whatsapp/client';
 import { State } from '../conversation/states';
+import { t, getDayNames, getMonthNames, type Language } from '../locales';
 
-const DAY_NAMES_RU = ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
-const MONTH_NAMES_RU = ['янв', 'фев', 'мар', 'апр', 'мая', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
-
-function getNext7Days(): Array<{ id: string; title: string; description: string; dateStr: string }> {
+function getNext7Days(lang: Language): Array<{ id: string; title: string; description: string; dateStr: string }> {
   const days = [];
   const now = new Date();
+  const dayNames = getDayNames(lang);
+  const monthNames = getMonthNames(lang);
 
   for (let i = 1; i <= 7; i++) {
     const date = new Date(now);
     date.setDate(now.getDate() + i);
 
-    const dayName = DAY_NAMES_RU[date.getDay()];
+    const dayName = dayNames[date.getDay()];
     const day = date.getDate();
-    const month = MONTH_NAMES_RU[date.getMonth()];
+    const month = monthNames[date.getMonth()];
     const dateStr = date.toISOString().split('T')[0]; // YYYY-MM-DD
 
     days.push({
@@ -31,6 +31,7 @@ function getNext7Days(): Array<{ id: string; title: string; description: string;
 }
 
 export async function handleBookingDate(input: UserInput, session: SessionData): Promise<void> {
+  const lang = (session.language || 'ru') as Language;
   const selection = input.listId || input.buttonId;
 
   if (selection?.startsWith('bdate_')) {
@@ -50,21 +51,21 @@ export async function handleBookingDate(input: UserInput, session: SessionData):
   }
 
   // Show next 7 days
-  const days = getNext7Days();
+  const days = getNext7Days(lang);
 
   await whatsappClient.sendList(
     input.phone,
-    'Выберите дату тренировки 📅',
-    'Даты',
+    t(lang, 'booking.date.title'),
+    t(lang, 'booking.date.dates'),
     [
       {
-        title: 'Ближайшие дни',
+        title: t(lang, 'booking.date.upcoming'),
         rows: [
           ...days.map((d) => ({
             id: d.id,
             title: d.title,
           })),
-          { id: 'back_btype', title: '⬅️ Назад' },
+          { id: 'back_btype', title: t(lang, 'back') },
         ],
       },
     ]

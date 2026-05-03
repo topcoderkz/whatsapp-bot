@@ -14,5 +14,25 @@ export function t(lang: Language, path: string): string {
   return value || path;
 }
 
+export function getDayNames(lang: Language): string[] {
+  return translations[lang].dates.days_short.split(',');
+}
+
+export function getMonthNames(lang: Language): string[] {
+  return translations[lang].dates.months_short.split(',');
+}
+
+export function formatLocalDate(lang: Language, date: Date): string {
+  if (lang === 'en') {
+    return date.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+  }
+  if (lang === 'kk') {
+    // Kazakh date format: "4 мамыр 2026 ж."
+    const months = getMonthNames(lang);
+    return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()} ж.`;
+  }
+  return date.toLocaleDateString('ru-RU');
+}
+
 export type { Language, Translations };
 export { ru, kk, en };

@@ -64,7 +64,7 @@ export async function handleWelcome(input: UserInput, session: SessionData): Pro
           { id: 'menu_booking', title: t(lang, 'menu.booking.title'), description: t(lang, 'menu.booking.description') },
           { id: 'menu_promos', title: t(lang, 'menu.promos.title'), description: t(lang, 'menu.promos.description') },
           { id: 'menu_manager', title: t(lang, 'menu.manager.title'), description: t(lang, 'menu.manager.description') },
-          { id: 'change_language', title: '🌐 ' + (lang === 'kk' ? 'Тіл' : lang === 'en' ? 'Language' : 'Язык'), description: lang === 'kk' ? 'Тілді өзгерту' : lang === 'en' ? 'Change language' : 'Сменить язык' },
+          { id: 'change_language', title: t(lang, 'language.change'), description: t(lang, 'language.change_desc') },
         ],
       },
     ]

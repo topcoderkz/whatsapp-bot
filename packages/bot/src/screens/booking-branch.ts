@@ -3,8 +3,10 @@ import { SessionData, sessionStore } from '../redis/session';
 import { whatsappClient } from '../whatsapp/client';
 import { prisma } from '../db/client';
 import { State } from '../conversation/states';
+import { t, type Language } from '../locales';
 
 export async function handleBookingBranch(input: UserInput, session: SessionData): Promise<void> {
+  const lang = (session.language || 'ru') as Language;
   const selection = input.listId || input.buttonId;
 
   if (selection?.startsWith('bbranch_')) {
@@ -36,18 +38,18 @@ export async function handleBookingBranch(input: UserInput, session: SessionData
 
   await whatsappClient.sendList(
     input.phone,
-    'Запись на тренировку ⭐\n\nВыберите филиал:',
-    'Филиалы',
+    `${t(lang, 'booking.title')}\n\n${t(lang, 'booking.select_branch')}`,
+    t(lang, 'branches.title'),
     [
       {
-        title: 'Филиалы',
+        title: t(lang, 'branches.title'),
         rows: [
           ...branches.map((b: any) => ({
             id: `bbranch_${b.id}`,
             title: `📍 ${b.name}`,
             description: b.address,
           })),
-          { id: 'back_main', title: '⬅️ Назад', description: 'В главное меню' },
+          { id: 'back_main', title: t(lang, 'back'), description: t(lang, 'nav.to_main') },
         ],
       },
     ]

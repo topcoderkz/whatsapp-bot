@@ -3,8 +3,10 @@ import { SessionData, sessionStore } from '../redis/session';
 import { whatsappClient } from '../whatsapp/client';
 import { prisma } from '../db/client';
 import { State } from '../conversation/states';
+import { t, type Language } from '../locales';
 
 export async function handlePromotions(input: UserInput, session: SessionData): Promise<void> {
+  const lang = (session.language || 'ru') as Language;
   const selection = input.listId || input.buttonId;
 
   if (selection?.startsWith('promo_')) {
@@ -34,9 +36,9 @@ export async function handlePromotions(input: UserInput, session: SessionData): 
   if (promos.length === 0) {
     await whatsappClient.sendButtons(
       input.phone,
-      'Сейчас нет активных акций 🎁\n\nСледите за обновлениями!',
+      `${t(lang, 'promotions.no_active')}\n\n${t(lang, 'promotions.follow_updates')}`,
       [
-        { id: 'back_main', title: '🏠 Главное меню' },
+        { id: 'back_main', title: t(lang, 'nav.main_menu') },
       ]
     );
     return;
@@ -48,12 +50,12 @@ export async function handlePromotions(input: UserInput, session: SessionData): 
     description: p.description?.slice(0, 72) || undefined,
   }));
 
-  rows.push({ id: 'back_main', title: '⬅️ Назад', description: 'В главное меню' });
+  rows.push({ id: 'back_main', title: t(lang, 'back'), description: t(lang, 'nav.to_main') });
 
   await whatsappClient.sendList(
     input.phone,
-    'Акции и предложения 🎁',
-    'Акции',
-    [{ title: 'Текущие акции', rows }]
+    t(lang, 'promotions.title'),
+    t(lang, 'promotions.title').replace(/\s*🎁\s*/, ''),
+    [{ title: t(lang, 'promotions.current'), rows }]
   );
 }

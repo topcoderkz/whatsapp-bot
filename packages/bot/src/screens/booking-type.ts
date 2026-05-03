@@ -2,8 +2,10 @@ import { UserInput } from '../whatsapp/types';
 import { SessionData, sessionStore } from '../redis/session';
 import { whatsappClient } from '../whatsapp/client';
 import { State } from '../conversation/states';
+import { t, type Language } from '../locales';
 
 export async function handleBookingType(input: UserInput, session: SessionData): Promise<void> {
+  const lang = (session.language || 'ru') as Language;
   const selection = input.listId || input.buttonId;
 
   if (selection === 'btype_individual' || selection === 'btype_group') {
@@ -25,11 +27,11 @@ export async function handleBookingType(input: UserInput, session: SessionData):
   // Show type selection
   await whatsappClient.sendButtons(
     input.phone,
-    'Выберите тип тренировки:',
+    t(lang, 'booking.type.title'),
     [
-      { id: 'btype_individual', title: '🏃 Индивидуальная' },
-      { id: 'btype_group', title: '👥 Групповая' },
-      { id: 'back_bbranch', title: '⬅️ Назад' },
+      { id: 'btype_individual', title: t(lang, 'booking.type.individual') },
+      { id: 'btype_group', title: t(lang, 'booking.type.group') },
+      { id: 'back_bbranch', title: t(lang, 'back') },
     ]
   );
 }
