@@ -3,6 +3,7 @@ substitutions:
   _REPO: fitness-bot
   _BOT_SERVICE: fitness-bot
   _ADMIN_SERVICE: fitness-admin
+  _LANDING_SERVICE: fitness-landing
 
 steps:
   # ---- Build bot image ----
@@ -30,6 +31,20 @@ steps:
       - .
     waitFor: ["-"]
 
+  # ---- Build landing image (parallel with bot and admin) ----
+  - id: build-landing
+    name: gcr.io/cloud-builders/docker
+    args:
+      - build
+      - -f
+      - Dockerfile.landing
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/landing:$SHORT_SHA
+      - -t
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/landing:latest
+      - .
+    waitFor: ["-"]
+
   # ---- Push bot image ----
   - id: push-bot
     name: gcr.io/cloud-builders/docker
@@ -47,6 +62,15 @@ steps:
       - --all-tags
       - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/admin
     waitFor: [build-admin]
+
+  # ---- Push landing image ----
+  - id: push-landing
+    name: gcr.io/cloud-builders/docker
+    args:
+      - push
+      - --all-tags
+      - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/landing
+    waitFor: [build-landing]
 
   # ---- Run database migrations ----
   - id: migrate-db
@@ -97,11 +121,32 @@ steps:
           --region=${_REGION} --platform=managed --allow-unauthenticated --quiet
     waitFor: [push-admin]
 
+  # ---- Deploy Landing ----
+  - id: deploy-landing
+    name: gcr.io/google.com/cloudsdktool/cloud-sdk
+    entrypoint: bash
+    args:
+      - -c
+      - |
+        gcloud run services update ${_LANDING_SERVICE} \
+          --image=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/landing:$SHORT_SHA \
+          --region=${_REGION} --quiet || \
+        gcloud run deploy ${_LANDING_SERVICE} \
+          --image=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/landing:$SHORT_SHA \
+          --region=${_REGION} --platform=managed --allow-unauthenticated \
+          --add-cloudsql-instances=$PROJECT_ID:${_REGION}:fitness-bot-db \
+          --set-env-vars="NODE_ENV=production,DATABASE_URL=postgresql://fitness:$$DB_PASSWORD@localhost:5432/fitness_bot?host=/cloudsql/$PROJECT_ID:${_REGION}:fitness-bot-db" \
+          --quiet
+    waitFor: [push-landing]
+    secretEnv: ['DB_PASSWORD']
+
 images:
   - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/bot:$SHORT_SHA
   - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/bot:latest
   - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/admin:$SHORT_SHA
   - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/admin:latest
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/landing:$SHORT_SHA
+  - ${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/landing:latest
 
 availableSecrets:
   secretManager:
