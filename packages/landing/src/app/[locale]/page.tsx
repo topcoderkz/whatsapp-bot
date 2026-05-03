@@ -9,6 +9,8 @@ import { GroupClasses } from '@/components/group-classes';
 import { Promotions } from '@/components/promotions';
 import { ContactCta } from '@/components/contact-cta';
 
+export const dynamic = 'force-dynamic';
+
 export default async function LandingPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const validLocale = isValidLocale(locale) ? locale : 'kk';
