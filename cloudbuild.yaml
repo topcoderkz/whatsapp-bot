@@ -55,18 +55,14 @@ steps:
     args:
       - -c
       - |
-        # Get DB password from Secret Manager
-        DB_PASSWORD=$(gcloud secrets versions access latest --secret=fitness-db-password)
-
         # Get public IP of Cloud SQL instance
-        DB_IP=$(gcloud sql instances describe fitness-bot-db \
-          --format="value(ipAddresses[0].ipAddress)")
+        DB_IP=$$(gcloud sql instances describe fitness-bot-db --format="value(ipAddresses[0].ipAddress)")
 
         # Apply migrations using psql
         for migration_file in packages/bot/prisma/migrations/*/migration.sql; do
-          echo "Applying: $migration_file"
-          PGPASSWORD=$DB_PASSWORD psql -h $DB_IP -U fitness -d fitness_bot \
-            -v ON_ERROR_STOP=1 < "$migration_file" || echo "Migration already applied or failed"
+          echo "Applying: $$migration_file"
+          PGPASSWORD=$$DB_PASSWORD psql -h $$DB_IP -U fitness -d fitness_bot \
+            -v ON_ERROR_STOP=1 < "$$migration_file" || echo "Migration already applied or failed"
         done
     waitFor: [push-bot]
     secretEnv: ['DB_PASSWORD']
