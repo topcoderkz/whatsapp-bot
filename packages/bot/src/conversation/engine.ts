@@ -98,11 +98,15 @@ function isGreeting(text?: string): boolean {
   if (!text) return false;
   const greetings = [
     // Russian
-    'привет', 'здравствуйте', 'старт', 'начать', 'меню',
+    'привет', 'здравствуйте', 'здрасте', 'здрасьте', 'старт', 'начать', 'меню',
+    'добрый день', 'доброе утро', 'добрый вечер',
     // Kazakh
-    'сәлем', 'салем', 'бастау',
+    'сәлем', 'салем', 'сәлеметсіз бе', 'саламатсыз ба',
+    'қайырлы күн', 'қайырлы таң', 'бастау',
     // English
-    'hi', 'hello', 'start', 'menu',
+    'hi', 'hello', 'hey', 'start', 'menu',
+    // Cyrillic transliterations (common in KZ)
+    'хай', 'хелло', 'хеллоу',
   ];
   return greetings.includes(text.toLowerCase().trim());
 }
