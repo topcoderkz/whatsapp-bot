@@ -4,24 +4,28 @@ import { prisma } from '@/lib/db';
 export const dynamic = 'force-dynamic';
 
 async function getBranchesWithPriceImages() {
+  // Get branches first (always works)
+  const branches = await prisma.branch.findMany({
+    where: { isActive: true },
+    orderBy: { id: 'asc' },
+  });
+
+  // Try to get price images separately
+  let priceImages: any[] = [];
   try {
-    const branches = await prisma.branch.findMany({
-      where: { isActive: true },
-      orderBy: { id: 'asc' },
-      include: { priceImage: true },
-    });
-    return { branches, hasPriceImages: true };
-  } catch (err) {
+    priceImages = await (prisma as any).priceImage.findMany();
+  } catch {
     // Table doesn't exist yet (migration not applied)
-    console.error('price_images table not found:', (err as Error).message);
-    const branches = await prisma.branch.findMany({
-      where: { isActive: true },
-      orderBy: { id: 'asc' },
-    });
-    // Add empty priceImage to each branch for type compatibility
-    const branchsWithEmptyImage = branches.map(b => ({ ...b, priceImage: null }));
-    return { branches: branchsWithEmptyImage, hasPriceImages: false };
+    console.log('price_images table not found yet');
   }
+
+  // Merge data
+  const branchesWithImages = branches.map((branch: any) => {
+    const priceImage = priceImages.find((pi: any) => pi.branchId === branch.id);
+    return { ...branch, priceImage: priceImage || null };
+  });
+
+  return { branches: branchesWithImages, hasPriceImages: priceImages.length > 0 };
 }
 
 export default async function PriceImagesPage() {
