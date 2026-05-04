@@ -35,7 +35,11 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
         dict={dict}
         locale={validLocale}
       />
-      <Trainers trainers={trainers as any} dict={dict} />
+      <Trainers
+        branches={branches.map((b) => ({ id: b.id, name: b.name }))}
+        trainers={trainers as any}
+        dict={dict}
+      />
       <GroupClasses
         branches={branches.map((b) => ({ id: b.id, name: b.name }))}
         classes={groupClasses as any}

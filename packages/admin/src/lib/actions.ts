@@ -58,6 +58,7 @@ export async function updateTrainer(id: number, formData: FormData) {
     where: { id },
     data: {
       name: formData.get('name') as string,
+      branchId: formData.get('branchId') ? parseInt(formData.get('branchId') as string, 10) : undefined,
       specialization: (formData.get('specialization') as string) || null,
       photoUrl: (formData.get('photoUrl') as string) || null,
       bio: (formData.get('bio') as string) || null,

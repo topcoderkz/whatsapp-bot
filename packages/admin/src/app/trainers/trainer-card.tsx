@@ -13,11 +13,13 @@ interface TrainerCardProps {
     bio: string | null;
     experienceYears: number | null;
     isActive: boolean;
-    branch: { name: string };
+    branchId: number;
+    branch: { id: number; name: string };
   };
+  branches: { id: number; name: string }[];
 }
 
-export function TrainerCard({ trainer: t }: TrainerCardProps) {
+export function TrainerCard({ trainer: t, branches }: TrainerCardProps) {
   const [editing, setEditing] = useState(false);
   const [saved, setSaved] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -35,7 +37,13 @@ export function TrainerCard({ trainer: t }: TrainerCardProps) {
     <div className={`bg-white rounded-xl border border-gray-200 p-4 ${!t.isActive ? 'opacity-50' : ''}`}>
       {editing ? (
         <form action={handleSave} className="space-y-3">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <div>
+              <label className="block text-xs text-gray-500 mb-1">Филиал</label>
+              <select name="branchId" defaultValue={t.branchId} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm">
+                {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+              </select>
+            </div>
             <div>
               <label className="block text-xs text-gray-500 mb-1">Имя</label>
               <input name="name" defaultValue={t.name} required className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />

@@ -6,7 +6,7 @@ type Trainer = {
   specialization: string | null;
   photoUrl: string | null;
   experienceYears: number | null;
-  branch: { name: string };
+  branch: { id: number; name: string };
 };
 
 export function TrainerCard({ trainer, dict }: { trainer: Trainer; dict: LandingTranslations }) {

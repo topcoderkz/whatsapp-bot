@@ -61,7 +61,7 @@ export default async function TrainersPage() {
       {/* Trainer list */}
       <div className="space-y-4">
         {trainers.map((t) => (
-          <TrainerCard key={t.id} trainer={t} />
+          <TrainerCard key={t.id} trainer={t as any} branches={branches} />
         ))}
         {trainers.length === 0 && (
           <p className="text-center py-8 text-sm text-gray-500">Тренеров пока нет. Добавьте первого тренера выше.</p>
