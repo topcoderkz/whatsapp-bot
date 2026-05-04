@@ -29,9 +29,7 @@ export function Navbar({ dict, locale }: { dict: LandingTranslations; locale: st
         <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <a href={`/${locale}`} className="flex items-center gap-2 shrink-0">
-            <span className="text-xl font-black text-white">
-              100<span className="text-brand">%</span> FITNESS
-            </span>
+            <img src="/images/logo-192.png" alt="100% Fitness Gym" className="h-10 w-10 md:h-12 md:w-12 rounded-full" />
           </a>
 
           {/* Desktop nav */}

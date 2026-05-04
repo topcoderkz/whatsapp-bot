@@ -18,6 +18,10 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   return {
     title: dict.meta.title,
     description: dict.meta.description,
+    icons: {
+      icon: '/favicon.ico',
+      apple: '/apple-touch-icon.png',
+    },
     openGraph: {
       title: dict.meta.title,
       description: dict.meta.description,
