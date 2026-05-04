@@ -10,12 +10,7 @@ export function Footer({ dict, locale }: { dict: LandingTranslations; locale: st
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
           <div>
-            <div className="flex items-center gap-3">
-              <img src="/images/logo-192.png" alt="100% Fitness Gym" className="h-12 w-12 rounded-full" />
-              <span className="text-xl font-black text-white">
-                100<span className="text-brand">%</span> FITNESS
-              </span>
-            </div>
+            <img src="/images/logo-192.png" alt="100% Fitness Gym" className="h-14 w-14 rounded-full" />
             <p className="mt-3 text-sm text-gray-400">{dict.footer.description}</p>
           </div>
 
