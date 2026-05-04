@@ -26,13 +26,14 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
 
   return (
     <main>
-      <Hero dict={dict} />
+      <Hero dict={dict} locale={validLocale} />
       <About dict={dict} />
       <Branches branches={branches} dict={dict} />
       <Pricing
         branches={branches.map((b) => ({ id: b.id, name: b.name }))}
         memberships={memberships as any}
         dict={dict}
+        locale={validLocale}
       />
       <Trainers trainers={trainers as any} dict={dict} />
       <GroupClasses
@@ -41,7 +42,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
         dict={dict}
       />
       <Promotions promotions={promotions as any} dict={dict} locale={validLocale} />
-      <ContactCta branches={branches} dict={dict} />
+      <ContactCta branches={branches} dict={dict} locale={validLocale} />
     </main>
   );
 }

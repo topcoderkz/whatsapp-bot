@@ -1,6 +1,6 @@
 import { SectionWrapper } from './section-wrapper';
 import type { LandingTranslations } from '@/i18n/types';
-import { WHATSAPP_URL, INSTAGRAM_URL, THREADS_URL } from '@/lib/constants';
+import { getWhatsAppUrl, INSTAGRAM_URL, THREADS_URL } from '@/lib/constants';
 
 type Branch = {
   id: number;
@@ -9,7 +9,7 @@ type Branch = {
   address: string;
 };
 
-export function ContactCta({ branches, dict }: { branches: Branch[]; dict: LandingTranslations }) {
+export function ContactCta({ branches, dict, locale }: { branches: Branch[]; dict: LandingTranslations; locale: string }) {
   return (
     <SectionWrapper id="contact" alternate>
       <div className="text-center mb-16">
@@ -26,7 +26,7 @@ export function ContactCta({ branches, dict }: { branches: Branch[]; dict: Landi
           <h3 className="text-2xl font-bold text-white mb-3">{dict.contact.whatsapp_cta}</h3>
           <p className="text-gray-300 mb-6">{dict.contact.whatsapp_desc}</p>
           <a
-            href={WHATSAPP_URL}
+            href={getWhatsAppUrl(locale)}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-[#25D366] text-white font-bold px-8 py-4 rounded-full hover:opacity-90 transition-opacity text-lg"

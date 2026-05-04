@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import clsx from 'clsx';
 import { LanguageSwitcher } from './language-switcher';
 import type { LandingTranslations } from '@/i18n/types';
-import { WHATSAPP_URL } from '@/lib/constants';
+import { getWhatsAppUrl } from '@/lib/constants';
 
 const NAV_SECTIONS = ['about', 'branches', 'pricing', 'trainers', 'classes', 'promotions', 'contact'] as const;
 
@@ -49,7 +49,7 @@ export function Navbar({ dict, locale }: { dict: LandingTranslations; locale: st
           <div className="flex items-center gap-3">
             <LanguageSwitcher locale={locale} />
             <a
-              href={WHATSAPP_URL}
+              href={getWhatsAppUrl(locale)}
               target="_blank"
               rel="noopener noreferrer"
               className="hidden md:inline-flex items-center gap-2 bg-brand text-white text-sm font-bold px-5 py-2.5 rounded-full hover:bg-brand-hover transition-colors"
@@ -90,7 +90,7 @@ export function Navbar({ dict, locale }: { dict: LandingTranslations; locale: st
               </a>
             ))}
             <a
-              href={WHATSAPP_URL}
+              href={getWhatsAppUrl(locale)}
               target="_blank"
               rel="noopener noreferrer"
               className="mt-2 block text-center bg-brand text-white font-bold py-3.5 rounded-full hover:bg-brand-hover transition-colors"

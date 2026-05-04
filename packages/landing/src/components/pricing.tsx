@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import { SectionWrapper } from './section-wrapper';
 import { PricingTable } from './pricing-table';
 import type { LandingTranslations } from '@/i18n/types';
-import { WHATSAPP_URL } from '@/lib/constants';
+import { getWhatsAppUrl } from '@/lib/constants';
 
 type Branch = { id: number; name: string };
 type Membership = {
@@ -20,10 +20,12 @@ export function Pricing({
   branches,
   memberships,
   dict,
+  locale,
 }: {
   branches: Branch[];
   memberships: Membership[];
   dict: LandingTranslations;
+  locale: string;
 }) {
   const [activeBranch, setActiveBranch] = useState(branches[0]?.id ?? 0);
 
@@ -64,7 +66,7 @@ export function Pricing({
       {/* CTA */}
       <div className="mt-8 text-center">
         <a
-          href={WHATSAPP_URL}
+          href={getWhatsAppUrl(locale)}
           target="_blank"
           rel="noopener noreferrer"
           className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-brand text-white font-bold px-8 py-4 rounded-full hover:bg-brand-hover transition-colors"

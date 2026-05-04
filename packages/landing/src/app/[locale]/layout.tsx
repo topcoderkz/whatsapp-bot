@@ -47,7 +47,7 @@ export default async function LocaleLayout({
         <Navbar dict={dict} locale={validLocale} />
         {children}
         <Footer dict={dict} locale={validLocale} />
-        <WhatsAppFab />
+        <WhatsAppFab locale={validLocale} />
       </body>
     </html>
   );

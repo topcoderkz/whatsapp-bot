@@ -1,7 +1,7 @@
 import type { LandingTranslations } from '@/i18n/types';
-import { WHATSAPP_URL } from '@/lib/constants';
+import { getWhatsAppUrl } from '@/lib/constants';
 
-export function Hero({ dict }: { dict: LandingTranslations }) {
+export function Hero({ dict, locale }: { dict: LandingTranslations; locale: string }) {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Background gradient */}
@@ -38,7 +38,7 @@ export function Hero({ dict }: { dict: LandingTranslations }) {
 
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-md sm:max-w-none mx-auto">
           <a
-            href={WHATSAPP_URL}
+            href={getWhatsAppUrl(locale)}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-brand text-white font-bold text-lg px-8 py-4 rounded-full hover:bg-brand-hover transition-all hover:scale-105 shadow-lg shadow-brand/25"
