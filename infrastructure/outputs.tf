@@ -8,6 +8,11 @@ output "admin_url" {
   value       = google_cloud_run_v2_service.admin.uri
 }
 
+output "landing_url" {
+  description = "URL of the landing page"
+  value       = google_cloud_run_v2_service.landing.uri
+}
+
 output "database_connection_name" {
   description = "Cloud SQL connection name"
   value       = google_sql_database_instance.postgres.connection_name

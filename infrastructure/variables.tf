@@ -21,6 +21,12 @@ variable "admin_image" {
   default     = ""
 }
 
+variable "landing_image" {
+  description = "Container image for landing page (override for manual deploy)"
+  type        = string
+  default     = ""
+}
+
 variable "db_tier" {
   description = "Cloud SQL machine type"
   type        = string

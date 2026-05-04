@@ -276,6 +276,113 @@ resource "google_cloud_run_v2_service_iam_member" "admin_public" {
   member   = "allUsers"
 }
 
+# ---------- Cloud Run: Landing ----------
+
+resource "google_cloud_run_v2_service" "landing" {
+  name     = "fitness-landing"
+  location = var.region
+
+  template {
+    service_account = google_service_account.bot.email
+
+    volumes {
+      name = "cloudsql"
+      cloud_sql_instance {
+        instances = [google_sql_database_instance.postgres.connection_name]
+      }
+    }
+
+    containers {
+      image = var.landing_image != "" ? var.landing_image : "${var.region}-docker.pkg.dev/${var.project_id}/fitness-bot/landing:latest"
+
+      ports {
+        container_port = 8080
+      }
+
+      env {
+        name  = "DATABASE_URL"
+        value = "postgresql://fitness:${var.db_password}@localhost:5432/fitness_bot?host=/cloudsql/${google_sql_database_instance.postgres.connection_name}"
+      }
+      env {
+        name  = "NODE_ENV"
+        value = "production"
+      }
+
+      resources {
+        limits = {
+          cpu    = "1"
+          memory = "512Mi"
+        }
+      }
+
+      volume_mounts {
+        name       = "cloudsql"
+        mount_path = "/cloudsql"
+      }
+    }
+  }
+
+  depends_on = [google_project_service.apis]
+}
+
+# Public access for landing page
+resource "google_cloud_run_v2_service_iam_member" "landing_public" {
+  name     = google_cloud_run_v2_service.landing.name
+  location = var.region
+  role     = "roles/run.invoker"
+  member   = "allUsers"
+}
+
+# ---------- Custom Domain Mapping: Landing ----------
+
+resource "google_cloud_run_domain_mapping" "landing" {
+  location = var.region
+  name     = "100fitnessgym.kz"
+
+  metadata {
+    namespace = var.project_id
+  }
+
+  spec {
+    route_name = google_cloud_run_v2_service.landing.name
+  }
+
+  lifecycle {
+    ignore_changes = [
+      metadata[0].annotations,
+      metadata[0].labels,
+      spec[0].force_override,
+      spec[0].certificate_mode,
+    ]
+  }
+
+  depends_on = [google_cloud_run_v2_service.landing]
+}
+
+resource "google_cloud_run_domain_mapping" "landing_www" {
+  location = var.region
+  name     = "www.100fitnessgym.kz"
+
+  metadata {
+    namespace = var.project_id
+  }
+
+  spec {
+    route_name = google_cloud_run_v2_service.landing.name
+  }
+
+  lifecycle {
+    ignore_changes = [
+      metadata[0].annotations,
+      metadata[0].labels,
+      spec[0].force_override,
+      spec[0].certificate_mode,
+    ]
+  }
+
+  depends_on = [google_cloud_run_v2_service.landing]
+}
+
 # ---------- Cloud Storage (Image Uploads) ----------
 
 resource "google_storage_bucket" "uploads" {
