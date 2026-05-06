@@ -17,6 +17,8 @@ export interface LandingTranslations {
     subheadline: string;
     cta: string;
     cta_secondary: string;
+    app_title: string;
+    app_description: string;
   };
   about: {
     title: string;

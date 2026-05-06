@@ -20,6 +20,8 @@ export const kk: LandingTranslations = {
     subheadline: 'Алматыда 4 филиал. Қолжетімді бағалар, кәсіби жаттықтырушылар, ыңғайлы кесте.',
     cta: 'WhatsApp-қа жазу',
     cta_secondary: 'Бағаларды көру',
+    app_title: 'Қолданбаны жүктеп алыңыз',
+    app_description: 'Бір түртумен жаттығуға жазылыңыз',
   },
   about: {
     title: 'Неге 100% Fitness?',

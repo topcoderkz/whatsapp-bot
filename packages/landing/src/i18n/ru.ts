@@ -20,6 +20,8 @@ export const ru: LandingTranslations = {
     subheadline: '4 филиала в Алматы. Доступные цены, профессиональные тренеры, удобное расписание.',
     cta: 'Написать в WhatsApp',
     cta_secondary: 'Узнать цены',
+    app_title: 'Скачайте приложение',
+    app_description: 'Записывайтесь на тренировки в одно касание',
   },
   about: {
     title: 'Почему 100% Fitness?',

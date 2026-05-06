@@ -20,6 +20,8 @@ export const en: LandingTranslations = {
     subheadline: '4 branches in Almaty. Affordable prices, professional trainers, flexible schedule.',
     cta: 'Chat on WhatsApp',
     cta_secondary: 'View Pricing',
+    app_title: 'Download our app',
+    app_description: 'Book workouts with just one tap',
   },
   about: {
     title: 'Why 100% Fitness?',
