@@ -83,20 +83,19 @@ export function Hero({ dict, locale }: { dict: LandingTranslations; locale: stri
                 <p className="text-sm font-semibold text-white leading-tight">App Store</p>
               </div>
             </a>
-            {/* RuStore */}
+            {/* Android */}
             <a
               href="https://www.rustore.ru/catalog/app/com.mobifitness.fitness100gym307386"
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-3 bg-white/10 border border-white/20 hover:bg-white/15 hover:border-white/30 transition-all rounded-xl px-4 py-2.5"
             >
-              <svg viewBox="0 0 24 24" fill="none" className="w-6 h-6">
-                <rect x="2" y="2" width="20" height="20" rx="4" fill="currentColor" className="text-orange-500"/>
-                <path d="M7 7h10v2H7V7zm0 4h10v2H7v-2zm0 4h6v2H7v-2z" fill="white"/>
+              <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
+                <path d="M17.523 15.3414c-.5511 0-.9991-.4486-.9991-.9997s.448-.9991.9991-.9991c.5511 0 .9991.448.9991.9991.0001.5511-.4479.9997-.9991.9997m-11.046 0c-.5511 0-.9991-.4486-.9991-.9997s.448-.9991.9991-.9991c.5511 0 .9991.448.9991.9991 0 .5511-.448.9997-.9991.9997m11.4045-6.02l1.9973-3.4592c.1141-.1981.0464-.4511-.1517-.5652-.1981-.1141-.4512-.0464-.5653.1517l-2.0305 3.5163c-1.5741-.7201-3.3281-1.1218-5.1881-1.1218-1.8599 0-3.6139.4006-5.1881 1.1217l-2.0305-3.5162c-.1141-.1981-.3672-.2658-.5652-.1517-.1981.1141-.2659.3672-.1517.5652l1.9972 3.4592c-3.6476 2.0485-6.1358 5.6744-6.4168 9.9445h19.3277c-.2809-4.2701-2.7691-7.896-6.4168-9.9445"/>
               </svg>
               <div className="text-left">
                 <p className="text-[10px] text-gray-400 leading-tight">Скачать в</p>
-                <p className="text-sm font-semibold text-white leading-tight">RuStore</p>
+                <p className="text-sm font-semibold text-white leading-tight">Android</p>
               </div>
             </a>
           </div>
