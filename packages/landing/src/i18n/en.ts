@@ -42,6 +42,7 @@ export const en: LandingTranslations = {
     phone: 'Phone',
     hours: 'Working Hours',
     view_map: 'View on Map',
+    show_all_photos: 'Show all photos',
   },
   pricing: {
     title: 'Pricing',

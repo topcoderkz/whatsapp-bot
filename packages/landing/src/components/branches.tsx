@@ -8,6 +8,7 @@ type Branch = {
   address: string;
   phone: string;
   workingHours: string;
+  photos: Array<{ id: number; imageUrl: string; displayOrder: number }>;
 };
 
 export function Branches({ branches, dict }: { branches: Branch[]; dict: LandingTranslations }) {

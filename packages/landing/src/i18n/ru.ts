@@ -42,6 +42,7 @@ export const ru: LandingTranslations = {
     phone: 'Телефон',
     hours: 'Часы работы',
     view_map: 'На карте',
+    show_all_photos: 'Показать все фото',
   },
   pricing: {
     title: 'Цены',

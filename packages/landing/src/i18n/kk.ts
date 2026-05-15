@@ -42,6 +42,7 @@ export const kk: LandingTranslations = {
     phone: 'Телефон',
     hours: 'Жұмыс уақыты',
     view_map: 'Картадан көру',
+    show_all_photos: 'Барлық фотоларды көру',
   },
   pricing: {
     title: 'Бағалар',

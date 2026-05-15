@@ -39,6 +39,7 @@ export interface LandingTranslations {
     phone: string;
     hours: string;
     view_map: string;
+    show_all_photos: string;
   };
   pricing: {
     title: string;

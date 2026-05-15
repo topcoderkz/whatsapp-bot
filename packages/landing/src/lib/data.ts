@@ -5,6 +5,9 @@ export const getBranches = unstable_cache(
   async () => {
     return prisma.branch.findMany({
       where: { isActive: true },
+      include: {
+        photos: { orderBy: { displayOrder: 'asc' } },
+      },
       orderBy: { id: 'asc' },
     });
   },

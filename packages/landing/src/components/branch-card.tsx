@@ -1,4 +1,11 @@
+import { BranchGallery } from './branch-gallery';
 import type { LandingTranslations } from '@/i18n/types';
+
+type BranchPhoto = {
+  id: number;
+  imageUrl: string;
+  displayOrder: number;
+};
 
 type Branch = {
   id: number;
@@ -6,9 +13,10 @@ type Branch = {
   address: string;
   phone: string;
   workingHours: string;
+  photos: BranchPhoto[];
 };
 
-// Map branch addresses to their images
+// Fallback images for branches without uploaded gallery photos
 const BRANCH_IMAGES: Record<string, string> = {
   'Байзакова 280, 3 этаж': '/images/branches/baizakova.jpg',
   'Кожамкулова 136': '/images/branches/kozhamkulova.jpg',
@@ -28,34 +36,35 @@ function getMapUrl(address: string): string {
   return GIS_LINKS[address] || `https://2gis.kz/almaty/search/${encodeURIComponent(address)}`;
 }
 
-function getBranchImage(address: string): string | undefined {
-  return BRANCH_IMAGES[address];
-}
-
 export function BranchCard({ branch, dict }: { branch: Branch; dict: LandingTranslations }) {
   const mapUrl = getMapUrl(branch.address);
-  const branchImage = getBranchImage(branch.address);
+  const hasGallery = branch.photos.length > 0;
+  const fallbackImage = BRANCH_IMAGES[branch.address];
 
   return (
     <div className="bg-surface-card border border-border-subtle rounded-2xl overflow-hidden hover:border-brand/50 transition-all group">
-      {/* Branch image header */}
-      <div className="h-48 overflow-hidden relative">
-        {branchImage ? (
-          <img
-            src={branchImage}
-            alt={branch.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
-        ) : (
-          <div className="w-full h-full bg-gradient-to-br from-brand/10 via-surface-2 to-surface-card flex items-center justify-center">
-            <svg className="w-10 h-10 text-brand/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-            </svg>
-          </div>
-        )}
-        {/* Dark overlay at bottom */}
-        <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/50 to-transparent" />
-      </div>
+      {/* Gallery or fallback single image */}
+      {hasGallery ? (
+        <BranchGallery photos={branch.photos} branchName={branch.name} dict={dict} />
+      ) : (
+        <div className="h-48 overflow-hidden relative">
+          {fallbackImage ? (
+            <img
+              src={fallbackImage}
+              alt={branch.name}
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-brand/10 via-surface-2 to-surface-card flex items-center justify-center">
+              <svg className="w-10 h-10 text-brand/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+            </div>
+          )}
+          {/* Dark overlay at bottom */}
+          <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/50 to-transparent" />
+        </div>
+      )}
 
       <div className="p-6 -mt-8 relative">
         {/* Header with orange accent */}

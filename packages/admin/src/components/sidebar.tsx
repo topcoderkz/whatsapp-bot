@@ -9,6 +9,7 @@ const navItems = [
   { href: '/branches', label: 'Филиалы', icon: '📍' },
   { href: '/pricing', label: 'Цены', icon: '💰' },
   { href: '/price-images', label: 'Прайс-изображения', icon: '🖼️' },
+  { href: '/branches/photos', label: 'Фото филиалов', icon: '📸' },
   { href: '/trainers', label: 'Тренеры', icon: '👨‍🏫' },
   { href: '/classes', label: 'Групповые', icon: '👥' },
   { href: '/promotions', label: 'Акции', icon: '🎁' },
