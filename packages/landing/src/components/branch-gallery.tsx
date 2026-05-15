@@ -23,6 +23,7 @@ export function BranchGallery({ photos, branchName, dict }: BranchGalleryProps) 
             <img
               src={photos[0].imageUrl}
               alt={branchName}
+              loading="lazy"
               className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
             />
           </button>
@@ -41,7 +42,7 @@ export function BranchGallery({ photos, branchName, dict }: BranchGalleryProps) 
         <div className="h-56 md:h-64 grid grid-cols-2 gap-0.5 overflow-hidden relative">
           {photos.map((photo, i) => (
             <button key={photo.id} onClick={() => setLightboxOpen(true)} className="overflow-hidden cursor-pointer">
-              <img src={photo.imageUrl} alt={i === 0 ? branchName : ''} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
+              <img src={photo.imageUrl} alt={i === 0 ? branchName : ''} loading={i === 0 ? 'eager' : 'lazy'} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
             </button>
           ))}
           <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
@@ -62,7 +63,7 @@ export function BranchGallery({ photos, branchName, dict }: BranchGalleryProps) 
           </button>
           {photos.slice(1).map((photo) => (
             <button key={photo.id} onClick={() => setLightboxOpen(true)} className="col-span-2 overflow-hidden cursor-pointer">
-              <img src={photo.imageUrl} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+              <img src={photo.imageUrl} alt="" loading="lazy" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
             </button>
           ))}
           <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/50 to-transparent pointer-events-none" />
@@ -86,17 +87,17 @@ export function BranchGallery({ photos, branchName, dict }: BranchGalleryProps) 
         </button>
 
         <button onClick={() => setLightboxOpen(true)} className="col-span-1 overflow-hidden cursor-pointer">
-          <img src={displayPhotos[1].imageUrl} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+          <img src={displayPhotos[1].imageUrl} alt="" loading="lazy" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
         </button>
         <button onClick={() => setLightboxOpen(true)} className="col-span-1 overflow-hidden cursor-pointer">
-          <img src={displayPhotos[2].imageUrl} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+          <img src={displayPhotos[2].imageUrl} alt="" loading="lazy" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
         </button>
 
         <button onClick={() => setLightboxOpen(true)} className="col-span-1 overflow-hidden cursor-pointer">
-          <img src={displayPhotos[3].imageUrl} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+          <img src={displayPhotos[3].imageUrl} alt="" loading="lazy" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
         </button>
         <button onClick={() => setLightboxOpen(true)} className="col-span-1 overflow-hidden cursor-pointer relative">
-          <img src={displayPhotos[4].imageUrl} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+          <img src={displayPhotos[4].imageUrl} alt="" loading="lazy" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
           {remainingCount > 0 && (
             <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
               <span className="text-white text-lg font-bold">+{remainingCount}</span>
