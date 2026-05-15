@@ -13,7 +13,8 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  const dict = getDictionary(locale);
+  const validLocale = isValidLocale(locale) ? locale : 'kk';
+  const dict = getDictionary(validLocale);
 
   return {
     title: dict.meta.title,
@@ -26,6 +27,17 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       title: dict.meta.title,
       description: dict.meta.description,
       type: 'website',
+    },
+    alternates: {
+      languages: {
+        'kk': '/kk',
+        'ru': '/ru',
+        'en': '/en',
+      },
+    },
+    other: {
+      google: 'notranslate',
+      yandex: 'notranslate',
     },
   };
 }
@@ -42,7 +54,7 @@ export default async function LocaleLayout({
   const dict = getDictionary(validLocale);
 
   return (
-    <html lang={validLocale} className={inter.className}>
+    <html lang={validLocale} translate="no" className={`${inter.className} notranslate`}>
       <body className="bg-surface-1 text-gray-200 antialiased">
         <Navbar dict={dict} locale={validLocale} />
         {children}

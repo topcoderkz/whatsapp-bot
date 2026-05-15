@@ -12,7 +12,11 @@ export function middleware(request: NextRequest) {
     (locale) => pathname.startsWith(`/${locale}/`) || pathname === `/${locale}`
   );
 
-  if (pathnameLocale) return NextResponse.next();
+  if (pathnameLocale) {
+    const response = NextResponse.next();
+    response.headers.set('Content-Language', pathnameLocale);
+    return response;
+  }
 
   // Redirect to default locale
   const url = request.nextUrl.clone();
