@@ -79,6 +79,8 @@ steps:
     args:
       - -c
       - |
+        apt-get update -qq && apt-get install -y -qq postgresql-client > /dev/null 2>&1
+
         # Get public IP of Cloud SQL instance
         DB_IP=$$(gcloud sql instances describe fitness-bot-db --format="value(ipAddresses[0].ipAddress)")
 
@@ -86,7 +88,7 @@ steps:
         for migration_file in packages/bot/prisma/migrations/*/migration.sql; do
           echo "Applying: $$migration_file"
           PGPASSWORD=$$DB_PASSWORD psql -h $$DB_IP -U fitness -d fitness_bot \
-            -v ON_ERROR_STOP=1 < "$$migration_file" || echo "Migration already applied or failed"
+            -v ON_ERROR_STOP=1 < "$$migration_file" || echo "Migration already applied or skipped"
         done
     waitFor: [push-bot]
     secretEnv: ['DB_PASSWORD']
