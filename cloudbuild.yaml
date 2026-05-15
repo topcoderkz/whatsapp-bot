@@ -119,7 +119,7 @@ steps:
         gcloud run deploy ${_ADMIN_SERVICE} \
           --image=${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/admin:$SHORT_SHA \
           --region=${_REGION} --platform=managed --allow-unauthenticated --quiet
-    waitFor: [push-admin]
+    waitFor: [push-admin, migrate-db]
 
   # ---- Deploy Landing ----
   - id: deploy-landing
@@ -137,7 +137,7 @@ steps:
           --add-cloudsql-instances=$PROJECT_ID:${_REGION}:fitness-bot-db \
           --set-env-vars="NODE_ENV=production,DATABASE_URL=postgresql://fitness:$$DB_PASSWORD@localhost:5432/fitness_bot?host=/cloudsql/$PROJECT_ID:${_REGION}:fitness-bot-db" \
           --quiet
-    waitFor: [push-landing]
+    waitFor: [push-landing, migrate-db]
     secretEnv: ['DB_PASSWORD']
 
 images:
