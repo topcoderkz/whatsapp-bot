@@ -81,15 +81,21 @@ steps:
       - |
         apt-get update -qq && apt-get install -y -qq postgresql-client > /dev/null 2>&1
 
-        # Get public IP of Cloud SQL instance
-        DB_IP=$$(gcloud sql instances describe fitness-bot-db --format="value(ipAddresses[0].ipAddress)")
+        # Download and start Cloud SQL Auth Proxy
+        curl -sSL https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.15.2/cloud-sql-proxy.linux.amd64 -o /tmp/cloud-sql-proxy
+        chmod +x /tmp/cloud-sql-proxy
+        /tmp/cloud-sql-proxy $PROJECT_ID:${_REGION}:fitness-bot-db --port 5432 &
+        PROXY_PID=$$!
+        sleep 3
 
-        # Apply migrations using psql
+        # Apply migrations via proxy
         for migration_file in packages/bot/prisma/migrations/*/migration.sql; do
           echo "Applying: $$migration_file"
-          PGPASSWORD=$$DB_PASSWORD psql -h $$DB_IP -U fitness -d fitness_bot \
+          PGPASSWORD=$$DB_PASSWORD psql -h 127.0.0.1 -U fitness -d fitness_bot \
             -v ON_ERROR_STOP=1 < "$$migration_file" || echo "Migration already applied or skipped"
         done
+
+        kill $$PROXY_PID 2>/dev/null
     waitFor: [push-bot]
     secretEnv: ['DB_PASSWORD']
 
