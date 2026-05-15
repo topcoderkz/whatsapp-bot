@@ -3,13 +3,22 @@ import { prisma } from './db';
 
 export const getBranches = unstable_cache(
   async () => {
-    return prisma.branch.findMany({
-      where: { isActive: true },
-      include: {
-        photos: { orderBy: { displayOrder: 'asc' } },
-      },
-      orderBy: { id: 'asc' },
-    });
+    try {
+      return await prisma.branch.findMany({
+        where: { isActive: true },
+        include: {
+          photos: { orderBy: { displayOrder: 'asc' } },
+        },
+        orderBy: { id: 'asc' },
+      });
+    } catch {
+      // Fallback if branch_photos table doesn't exist yet (migration pending)
+      const branches = await prisma.branch.findMany({
+        where: { isActive: true },
+        orderBy: { id: 'asc' },
+      });
+      return branches.map((b) => ({ ...b, photos: [] }));
+    }
   },
   ['branches'],
   { revalidate: 300 }
