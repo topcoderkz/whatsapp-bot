@@ -4,6 +4,7 @@ import { handleVerification, handleIncoming } from './whatsapp/webhook';
 import { adminApiRouter } from './routes/admin-api';
 import { startBookingCleanup } from './jobs/booking-cleanup';
 import { startPromotionExpiry } from './jobs/promotion-expiry';
+import { startLeadFollowup } from './jobs/lead-followup';
 
 const app = express();
 
@@ -31,3 +32,4 @@ app.listen(config.port, () => {
 // Start background jobs
 startBookingCleanup();
 startPromotionExpiry();
+startLeadFollowup();

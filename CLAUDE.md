@@ -209,6 +209,7 @@ GCS_BUCKET_NAME=
 WA_TEMPLATE_BOOKING_NOTIFICATION=booking_notification
 WA_TEMPLATE_BOOKING_CONFIRMATION=booking_confirmation
 WA_TEMPLATE_BROADCAST=broadcast_message
+WA_TEMPLATE_LEAD_FOLLOWUP=lead_followup
 ```
 
 ## Production URLs

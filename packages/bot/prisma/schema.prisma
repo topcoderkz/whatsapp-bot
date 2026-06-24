@@ -196,6 +196,8 @@ model NotificationLog {
   booking        Booking?           @relation(fields: [bookingId], references: [id])
   broadcastId    Int?               @map("broadcast_id")
   broadcast      BroadcastMessage?  @relation(fields: [broadcastId], references: [id])
+  leadId         Int?               @map("lead_id")
+  lead           Lead?              @relation(fields: [leadId], references: [id])
   recipientPhone String             @map("recipient_phone")
   templateName   String?            @map("template_name")
   status         NotificationStatus @default(PENDING)
@@ -263,19 +265,23 @@ model BranchPhoto {
 }
 
 model Lead {
-  id            Int      @id @default(autoincrement())
-  phone         String   @unique
-  lastState     String   @map("last_state")
-  branchId      Int?     @map("branch_id")
-  branch        Branch?  @relation(fields: [branchId], references: [id])
-  hasBooked     Boolean  @default(false) @map("has_booked")
-  messageCount  Int      @default(0) @map("message_count")
-  firstSeenAt   DateTime @default(now()) @map("first_seen_at")
-  lastMessageAt DateTime @updatedAt @map("last_message_at")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @updatedAt @map("updated_at")
+  id                Int       @id @default(autoincrement())
+  phone             String    @unique
+  lastState         String    @map("last_state")
+  branchId          Int?      @map("branch_id")
+  branch            Branch?   @relation(fields: [branchId], references: [id])
+  hasBooked         Boolean   @default(false) @map("has_booked")
+  messageCount      Int       @default(0) @map("message_count")
+  firstSeenAt       DateTime  @default(now()) @map("first_seen_at")
+  lastMessageAt     DateTime  @updatedAt @map("last_message_at")
+  managerNotifiedAt DateTime? @map("manager_notified_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  notifications NotificationLog[]
 
   @@index([lastMessageAt])
   @@index([hasBooked, lastMessageAt])
+  @@index([hasBooked, branchId, managerNotifiedAt, lastMessageAt])
   @@map("leads")
 }

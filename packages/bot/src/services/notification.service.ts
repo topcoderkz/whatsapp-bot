@@ -92,6 +92,71 @@ export const notificationService = {
   },
 
   /**
+   * Notify branch manager about a dropped lead (someone who chatted but didn't book).
+   * Mirrors notifyManagerNewBooking: same retry policy + NotificationLog audit trail.
+   * Throws on exhausted retries so the caller (lead-followup cron) can decide whether
+   * to mark the lead as notified.
+   */
+  async notifyManagerNewLead(lead: { id: number; phone: string }, branch: { id: number; name: string; managerPhone: string }): Promise<void> {
+    if (!branch.managerPhone) {
+      throw new Error(`No manager phone for branch ${branch.name}`);
+    }
+
+    const log = await (prisma as any).notificationLog.create({
+      data: {
+        leadId: lead.id,
+        recipientPhone: branch.managerPhone,
+        templateName: config.templates.leadFollowup,
+        status: 'PENDING',
+      },
+    });
+
+    // Template body parameters (2 vars):
+    // {{1}} = branch name, {{2}} = client phone
+    const params = [branch.name, lead.phone];
+
+    let lastError: Error | null = null;
+
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        const result = await whatsappClient.sendTemplate(
+          branch.managerPhone,
+          config.templates.leadFollowup,
+          params
+        );
+
+        await (prisma as any).notificationLog.update({
+          where: { id: log.id },
+          data: {
+            status: 'SENT',
+            waMessageId: result.messageId,
+            sentAt: new Date(),
+          },
+        });
+
+        console.log(`[Notification] Manager notified for lead ${lead.id} → ${branch.managerPhone}`);
+        return;
+      } catch (err) {
+        lastError = err as Error;
+        console.error(`[Notification] Lead followup attempt ${attempt + 1} failed:`, (err as Error).message);
+        if (attempt < MAX_RETRIES) {
+          await sleep(RETRY_DELAY_MS);
+        }
+      }
+    }
+
+    await (prisma as any).notificationLog.update({
+      where: { id: log.id },
+      data: {
+        status: 'FAILED',
+        errorMessage: lastError?.message || 'Unknown error after retries',
+      },
+    });
+
+    throw lastError ?? new Error('Lead followup notification failed');
+  },
+
+  /**
    * Notify client that their booking was confirmed (sent by admin action).
    */
   async notifyClientBookingConfirmed(booking: any): Promise<void> {

@@ -35,5 +35,6 @@ export const config = {
     bookingNotification: process.env.WA_TEMPLATE_BOOKING_NOTIFICATION || 'booking_notification',
     bookingConfirmation: process.env.WA_TEMPLATE_BOOKING_CONFIRMATION || 'booking_confirmation',
     broadcast: process.env.WA_TEMPLATE_BROADCAST || 'broadcast_message',
+    leadFollowup: process.env.WA_TEMPLATE_LEAD_FOLLOWUP || 'lead_followup',
   },
 };
