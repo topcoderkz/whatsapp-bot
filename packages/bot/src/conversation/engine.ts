@@ -1,6 +1,7 @@
 import { UserInput } from '../whatsapp/types';
 import { sessionStore, SessionData } from '../redis/session';
 import { State } from './states';
+import { leadService } from '../services/lead.service';
 
 // Screen handlers — each returns void and sends messages via whatsappClient
 import { handleLanguageSelection } from '../screens/language';
@@ -57,30 +58,44 @@ export const conversationEngine = {
         session = { state: State.LANGUAGE_SELECTION, updatedAt: new Date().toISOString() };
         await sessionStore.set(input.phone, session);
         await handleLanguageSelection(input, session);
-        return;
-      }
-
-      // Any text message that looks like a greeting → restart
-      if (input.type === 'text' && isGreeting(input.text)) {
-        // If user has a language preference, go to welcome, otherwise language selection
-        session = {
-          state: session.language ? State.WELCOME : State.LANGUAGE_SELECTION,
-          language: session.language,
-          updatedAt: new Date().toISOString()
-        };
-        await sessionStore.set(input.phone, session);
-      }
-
-      const handler = screenHandlers[session.state];
-      if (handler) {
-        await handler(input, session);
       } else {
-        // Unknown state → reset to welcome (with language if set)
-        console.warn(`[Engine] Unknown state: ${session.state}, resetting`);
-        session.state = session.language ? State.WELCOME : State.LANGUAGE_SELECTION;
-        await sessionStore.set(input.phone, session);
-        const targetHandler = screenHandlers[session.state];
-        if (targetHandler) await targetHandler(input, session);
+        // Any text message that looks like a greeting → restart
+        if (input.type === 'text' && isGreeting(input.text)) {
+          // If user has a language preference, go to welcome, otherwise language selection
+          session = {
+            state: session.language ? State.WELCOME : State.LANGUAGE_SELECTION,
+            language: session.language,
+            updatedAt: new Date().toISOString()
+          };
+          await sessionStore.set(input.phone, session);
+        }
+
+        const handler = screenHandlers[session.state];
+        if (handler) {
+          await handler(input, session);
+        } else {
+          // Unknown state → reset to welcome (with language if set)
+          console.warn(`[Engine] Unknown state: ${session.state}, resetting`);
+          session.state = session.language ? State.WELCOME : State.LANGUAGE_SELECTION;
+          await sessionStore.set(input.phone, session);
+          const targetHandler = screenHandlers[session.state];
+          if (targetHandler) await targetHandler(input, session);
+        }
+      }
+
+      // Record lead activity for the admin "Leads" view. Read post-handler
+      // session so lastState reflects where the bot left the user.
+      try {
+        const latest = await sessionStore.get(input.phone);
+        if (latest) {
+          await leadService.recordMessage({
+            phone: input.phone,
+            state: latest.state,
+            branchId: latest.branchId ?? null,
+          });
+        }
+      } catch (leadErr) {
+        console.error(`[Engine] Lead upsert failed for ${input.phone}:`, leadErr);
       }
     } catch (err) {
       console.error(`[Engine] Error handling message from ${input.phone}:`, err);

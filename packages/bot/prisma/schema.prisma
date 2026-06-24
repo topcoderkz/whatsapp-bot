@@ -45,6 +45,7 @@ model Branch {
   broadcasts   BroadcastMessage[]
   priceImage   PriceImage?
   photos       BranchPhoto[]
+  leads        Lead[]
 
   @@map("branches")
 }
@@ -259,4 +260,22 @@ model BranchPhoto {
   createdAt    DateTime @default(now()) @map("created_at")
 
   @@map("branch_photos")
+}
+
+model Lead {
+  id            Int      @id @default(autoincrement())
+  phone         String   @unique
+  lastState     String   @map("last_state")
+  branchId      Int?     @map("branch_id")
+  branch        Branch?  @relation(fields: [branchId], references: [id])
+  hasBooked     Boolean  @default(false) @map("has_booked")
+  messageCount  Int      @default(0) @map("message_count")
+  firstSeenAt   DateTime @default(now()) @map("first_seen_at")
+  lastMessageAt DateTime @updatedAt @map("last_message_at")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@index([lastMessageAt])
+  @@index([hasBooked, lastMessageAt])
+  @@map("leads")
 }

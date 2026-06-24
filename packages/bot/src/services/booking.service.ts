@@ -1,5 +1,6 @@
 import { prisma } from '../db/client';
 import { notificationService } from './notification.service';
+import { leadService } from './lead.service';
 
 interface CreateBookingInput {
   clientPhone: string;
@@ -31,6 +32,10 @@ export const bookingService = {
     // Notify branch manager (fire and forget — don't block booking creation)
     notificationService.notifyManagerNewBooking(booking).catch((err) => {
       console.error('[BookingService] Failed to notify manager:', err);
+    });
+
+    leadService.markBooked(input.clientPhone).catch((err) => {
+      console.error('[BookingService] Failed to mark lead as booked:', err);
     });
 
     return booking;
