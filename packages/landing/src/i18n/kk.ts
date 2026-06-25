@@ -29,6 +29,7 @@ export const kk: LandingTranslations = {
     view_map: 'Картадан көру',
     view_details: 'Филиал туралы толығырақ',
     show_all_photos: 'Барлық фотоны көрсету',
+    show_all_trainers: 'Барлық жаттықтырушыларды көрсету',
   },
   branch_page: {
     back_to_all: 'Барлық филиалдар',

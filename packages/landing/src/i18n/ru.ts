@@ -29,6 +29,7 @@ export const ru: LandingTranslations = {
     view_map: 'На карте',
     view_details: 'Подробнее о филиале',
     show_all_photos: 'Показать все фото',
+    show_all_trainers: 'Показать всех тренеров',
   },
   branch_page: {
     back_to_all: 'Все филиалы',

@@ -26,6 +26,7 @@ export interface LandingTranslations {
     view_map: string;
     view_details: string;
     show_all_photos: string;
+    show_all_trainers: string;
   };
   branch_page: {
     back_to_all: string;

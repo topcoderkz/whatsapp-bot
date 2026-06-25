@@ -29,6 +29,7 @@ export const en: LandingTranslations = {
     view_map: 'View on Map',
     view_details: 'Branch details',
     show_all_photos: 'Show all photos',
+    show_all_trainers: 'Show all trainers',
   },
   branch_page: {
     back_to_all: 'All branches',

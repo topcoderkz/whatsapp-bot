@@ -195,16 +195,61 @@ export default async function BranchPage({
             <p className="text-gray-400 text-lg">{dict.branch_page.no_trainers}</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            {trainers.map((trainer: any) => (
-              <TrainerCard
-                key={trainer.id}
-                trainer={{ ...trainer, branch: { id: branch.id, name: branch.name } }}
-                dict={dict}
-                locale={validLocale}
-              />
-            ))}
-          </div>
+          <>
+            {/* Mobile: compact 2-col thumbnails with overlaid name */}
+            <div className="md:hidden">
+              <div className="grid grid-cols-2 gap-3">
+                {trainers.map((trainer: any) => (
+                  <Link
+                    key={trainer.id}
+                    href={`/${validLocale}/trainers/${trainer.id}`}
+                    className="relative aspect-square rounded-2xl overflow-hidden block bg-surface-2 hover:border-brand/50 transition-colors group"
+                  >
+                    {trainer.photoUrl ? (
+                      <img
+                        src={trainer.photoUrl}
+                        alt={trainer.name}
+                        loading="lazy"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gradient-to-br from-surface-2 to-surface-card flex items-center justify-center">
+                        <svg className="w-20 h-20 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
+                          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                        </svg>
+                      </div>
+                    )}
+                    <div className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/85 via-black/40 to-transparent">
+                      <h3 className="text-white font-bold text-sm leading-tight">{trainer.name}</h3>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+              <div className="mt-6 text-center">
+                <Link
+                  href={`/${validLocale}/trainers`}
+                  className="inline-flex items-center justify-center gap-2 bg-surface-card border border-border-subtle text-white font-bold px-6 py-3 rounded-full hover:border-brand/50 hover:text-brand transition-colors"
+                >
+                  {dict.branches.show_all_trainers}
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </Link>
+              </div>
+            </div>
+
+            {/* Desktop: existing larger card grid */}
+            <div className="hidden md:grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {trainers.map((trainer: any) => (
+                <TrainerCard
+                  key={trainer.id}
+                  trainer={{ ...trainer, branch: { id: branch.id, name: branch.name } }}
+                  dict={dict}
+                  locale={validLocale}
+                />
+              ))}
+            </div>
+          </>
         )}
       </SectionWrapper>
 
