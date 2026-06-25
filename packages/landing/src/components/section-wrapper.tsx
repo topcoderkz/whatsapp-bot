@@ -15,7 +15,7 @@ export function SectionWrapper({
     <section
       id={id}
       className={clsx(
-        'py-20 md:py-28 scroll-mt-20',
+        'py-12 md:py-16 scroll-mt-20',
         alternate ? 'bg-surface-2' : 'bg-surface-1',
         className
       )}
