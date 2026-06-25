@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getDictionary, isValidLocale } from '@/i18n';
-import { getActiveBranchSlugs, getBranchBySlug } from '@/lib/data';
+import { getBranchBySlug } from '@/lib/data';
 import { BRANCH_FALLBACK_IMAGES, getMapUrl } from '@/lib/branch-meta';
 import { getWhatsAppUrl } from '@/lib/constants';
 import { BranchGallery } from '@/components/branch-gallery';
@@ -11,13 +11,11 @@ import { ClassCard } from '@/components/class-card';
 import { ContactCta } from '@/components/contact-cta';
 import { SectionWrapper } from '@/components/section-wrapper';
 
-export const revalidate = 300;
-
-export async function generateStaticParams() {
-  const slugs = await getActiveBranchSlugs();
-  const locales = ['kk', 'ru', 'en'] as const;
-  return locales.flatMap((locale) => slugs.map((slug) => ({ locale, slug })));
-}
+// SSR per request — DB isn't reachable from the landing Docker build
+// (no Cloud SQL Auth Proxy in that step), so we can't pre-render here.
+// The underlying Prisma queries are wrapped in unstable_cache (revalidate: 300)
+// so the per-request cost is amortized across 5 min windows.
+export const dynamic = 'force-dynamic';
 
 export default async function BranchPage({
   params,
