@@ -72,12 +72,36 @@ export const getActivePromotions = unstable_cache(
         startDate: { lte: now },
         endDate: { gte: now },
       },
+      include: { branches: { select: { id: true, slug: true, name: true } } },
       orderBy: { startDate: 'desc' },
     });
   },
   ['active-promotions'],
   { revalidate: 300 }
 );
+
+// Promos that apply to a specific branch: either explicitly targeting it,
+// or with an empty branch set (the "all branches" convention).
+export async function getActivePromotionsForBranch(branchId: number) {
+  try {
+    const now = new Date();
+    return await prisma.promotion.findMany({
+      where: {
+        isActive: true,
+        startDate: { lte: now },
+        endDate: { gte: now },
+        OR: [
+          { branches: { none: {} } },
+          { branches: { some: { id: branchId } } },
+        ],
+      },
+      include: { branches: { select: { id: true, slug: true, name: true } } },
+      orderBy: { startDate: 'desc' },
+    });
+  } catch {
+    return [];
+  }
+}
 
 export const getActiveBranchSlugs = unstable_cache(
   async () => {

@@ -90,6 +90,7 @@ export const en: LandingTranslations = {
     valid_until: 'Valid until:',
     conditions: 'Conditions:',
     placeholder: 'No active promotions right now. Stay tuned!',
+    all_branches: 'All branches',
   },
   contact: {
     title: 'Contact Us',

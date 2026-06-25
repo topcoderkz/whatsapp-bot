@@ -25,10 +25,22 @@ export async function handlePromotions(input: UserInput, session: SessionData): 
   }
 
   const now = new Date();
+  // If the user is in a branch context, narrow to promos that either target
+  // that branch or have no branch set (the "all branches" convention).
+  // Outside a branch context (main-menu PROMOTIONS), show everything.
+  const branchFilter = session.branchId
+    ? {
+        OR: [
+          { branches: { none: {} } },
+          { branches: { some: { id: session.branchId } } },
+        ],
+      }
+    : {};
   const promos = await (prisma as any).promotion.findMany({
     where: {
       startDate: { lte: now },
       endDate: { gte: now },
+      ...branchFilter,
     },
     orderBy: { createdAt: 'desc' },
   });

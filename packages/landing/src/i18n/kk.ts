@@ -90,6 +90,7 @@ export const kk: LandingTranslations = {
     valid_until: 'Мерзімі:',
     conditions: 'Шарттар:',
     placeholder: 'Қазір белсенді акциялар жоқ. Жаңалықтарды қадағалаңыз!',
+    all_branches: 'Барлық филиалдар',
   },
   contact: {
     title: 'Байланыс',

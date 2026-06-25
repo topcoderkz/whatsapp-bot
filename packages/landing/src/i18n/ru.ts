@@ -90,6 +90,7 @@ export const ru: LandingTranslations = {
     valid_until: 'Действует до:',
     conditions: 'Условия:',
     placeholder: 'Сейчас нет активных акций. Следите за обновлениями!',
+    all_branches: 'Все филиалы',
   },
   contact: {
     title: 'Контакты',

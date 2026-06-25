@@ -1,13 +1,19 @@
 import { AdminLayout } from '@/components/admin-layout';
 import { ImageUpload } from '@/components/image-upload';
 import { prisma } from '@/lib/db';
-import { createPromotion, togglePromotion } from '@/lib/actions';
+import { createPromotion, togglePromotion, updatePromotionBranches } from '@/lib/actions';
 
 export const dynamic = 'force-dynamic';
 
 export default async function PromotionsPage() {
   const now = new Date();
-  const promos = await prisma.promotion.findMany({ orderBy: { createdAt: 'desc' } });
+  const [promos, branches] = await Promise.all([
+    prisma.promotion.findMany({
+      orderBy: { createdAt: 'desc' },
+      include: { branches: { select: { id: true, name: true } } },
+    }),
+    prisma.branch.findMany({ where: { isActive: true }, orderBy: { id: 'asc' }, select: { id: true, name: true } }),
+  ]);
 
   const active = promos.filter(p => p.isActive && p.endDate >= now && p.startDate <= now);
   const scheduled = promos.filter(p => p.isActive && p.startDate > now);
@@ -49,6 +55,17 @@ export default async function PromotionsPage() {
               <input name="endDate" type="date" required className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
             </div>
           </div>
+          <div>
+            <label className="block text-xs text-gray-500 mb-1">Филиалы (если ничего не выбрано — применяется ко всем)</label>
+            <div className="flex flex-wrap gap-3">
+              {branches.map(b => (
+                <label key={b.id} className="text-sm text-gray-700 inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-gray-200 cursor-pointer hover:bg-gray-50">
+                  <input type="checkbox" name="branchIds" value={b.id} className="rounded" />
+                  {b.name}
+                </label>
+              ))}
+            </div>
+          </div>
           <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
             Создать
           </button>
@@ -57,10 +74,10 @@ export default async function PromotionsPage() {
 
       {/* Promo sections */}
       {[
-        { title: 'Активные', items: active, color: 'green' },
-        { title: 'Запланированные', items: scheduled, color: 'blue' },
-        { title: 'Завершённые', items: expired, color: 'gray' },
-      ].map(({ title, items, color }) => (
+        { title: 'Активные', items: active },
+        { title: 'Запланированные', items: scheduled },
+        { title: 'Завершённые', items: expired },
+      ].map(({ title, items }) => (
         <div key={title} className="mb-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-3">{title} ({items.length})</h2>
           {items.length === 0 ? (
@@ -76,6 +93,19 @@ export default async function PromotionsPage() {
                       <p className="text-xs text-gray-400 mt-2">
                         {new Date(p.startDate).toLocaleDateString('ru-RU')} — {new Date(p.endDate).toLocaleDateString('ru-RU')}
                       </p>
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {p.branches.length === 0 ? (
+                          <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">
+                            Все филиалы
+                          </span>
+                        ) : (
+                          p.branches.map(b => (
+                            <span key={b.id} className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-blue-50 text-blue-700">
+                              📍 {b.name}
+                            </span>
+                          ))
+                        )}
+                      </div>
                     </div>
                     <form action={togglePromotion.bind(null, p.id, !p.isActive)}>
                       <button type="submit" className={`text-xs font-medium px-3 py-1.5 rounded ${p.isActive ? 'bg-red-50 text-red-600' : 'bg-green-50 text-green-600'}`}>
@@ -83,6 +113,31 @@ export default async function PromotionsPage() {
                       </button>
                     </form>
                   </div>
+
+                  <details className="mt-3 border-t border-gray-100 pt-3">
+                    <summary className="text-xs text-blue-600 cursor-pointer hover:text-blue-800 select-none">
+                      Изменить филиалы
+                    </summary>
+                    <form action={updatePromotionBranches.bind(null, p.id)} className="mt-3 space-y-2">
+                      <div className="flex flex-wrap gap-2">
+                        {branches.map(b => (
+                          <label key={b.id} className="text-xs text-gray-700 inline-flex items-center gap-1.5 px-2 py-1 rounded border border-gray-200 cursor-pointer hover:bg-gray-50">
+                            <input
+                              type="checkbox"
+                              name="branchIds"
+                              value={b.id}
+                              defaultChecked={p.branches.some(pb => pb.id === b.id)}
+                              className="rounded"
+                            />
+                            {b.name}
+                          </label>
+                        ))}
+                      </div>
+                      <button type="submit" className="text-xs font-medium px-3 py-1.5 rounded bg-blue-600 text-white hover:bg-blue-700">
+                        Сохранить
+                      </button>
+                    </form>
+                  </details>
                 </div>
               ))}
             </div>

@@ -9,6 +9,7 @@ type Promotion = {
   conditions: string | null;
   imageUrl: string | null;
   endDate: Date;
+  branches?: { id: number; name: string }[];
 };
 
 export function Promotions({
@@ -37,7 +38,7 @@ export function Promotions({
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {promotions.map((promo) => (
-            <PromoCard key={promo.id} promo={promo} dict={dict} locale={locale} />
+            <PromoCard key={promo.id} promo={promo} dict={dict} locale={locale} showBranches />
           ))}
         </div>
       )}

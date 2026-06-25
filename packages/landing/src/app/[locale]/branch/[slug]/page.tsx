@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getDictionary, isValidLocale } from '@/i18n';
-import { getBranchBySlug } from '@/lib/data';
+import { getBranchBySlug, getActivePromotionsForBranch } from '@/lib/data';
 import { BRANCH_FALLBACK_IMAGES, getMapUrl } from '@/lib/branch-meta';
 import { getWhatsAppUrl } from '@/lib/constants';
 import { BranchGallery } from '@/components/branch-gallery';
@@ -9,6 +9,7 @@ import { PhotoCarousel } from '@/components/photo-carousel';
 import { PricingTable } from '@/components/pricing-table';
 import { TrainerCard } from '@/components/trainer-card';
 import { ClassCard } from '@/components/class-card';
+import { PromoCard } from '@/components/promo-card';
 import { ContactCta } from '@/components/contact-cta';
 import { SectionWrapper } from '@/components/section-wrapper';
 
@@ -35,6 +36,8 @@ export default async function BranchPage({
   const memberships: any[] = b.memberships ?? [];
   const trainers: any[] = b.trainers ?? [];
   const groupClasses: any[] = b.groupClasses ?? [];
+
+  const promotions = await getActivePromotionsForBranch(branch.id);
 
   const mapUrl = getMapUrl(branch.address);
   const heroImage = photos[0]?.imageUrl || BRANCH_FALLBACK_IMAGES[branch.address];
@@ -158,6 +161,22 @@ export default async function BranchPage({
             </div>
           </SectionWrapper>
         </div>
+      )}
+
+      {/* Promotions (only those targeting this branch or all-branches) */}
+      {promotions.length > 0 && (
+        <SectionWrapper id="branch-promotions">
+          <div className="text-center mb-10">
+            <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-white">
+              {dict.promotions.title}
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {promotions.map((promo: any) => (
+              <PromoCard key={promo.id} promo={promo} dict={dict} locale={validLocale} />
+            ))}
+          </div>
+        </SectionWrapper>
       )}
 
       {/* Pricing */}

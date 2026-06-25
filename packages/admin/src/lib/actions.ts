@@ -125,6 +125,7 @@ export async function toggleGroupClass(id: number, isActive: boolean) {
 // ─── Promotions ───
 
 export async function createPromotion(formData: FormData) {
+  const branchIds = (formData.getAll('branchIds') as string[]).map(Number).filter(Number.isFinite);
   await prisma.promotion.create({
     data: {
       title: formData.get('title') as string,
@@ -133,6 +134,20 @@ export async function createPromotion(formData: FormData) {
       imageUrl: (formData.get('imageUrl') as string) || null,
       startDate: new Date(formData.get('startDate') as string),
       endDate: new Date(formData.get('endDate') as string),
+      // Empty list ⇒ no rows in join table ⇒ applies to all branches (per app convention).
+      branches: branchIds.length > 0 ? { connect: branchIds.map((id) => ({ id })) } : undefined,
+    },
+  });
+  revalidatePath('/promotions');
+}
+
+export async function updatePromotionBranches(promotionId: number, formData: FormData) {
+  const branchIds = (formData.getAll('branchIds') as string[]).map(Number).filter(Number.isFinite);
+  await prisma.promotion.update({
+    where: { id: promotionId },
+    data: {
+      // `set` replaces the entire branch set (empty array clears → applies-to-all).
+      branches: { set: branchIds.map((id) => ({ id })) },
     },
   });
   revalidatePath('/promotions');

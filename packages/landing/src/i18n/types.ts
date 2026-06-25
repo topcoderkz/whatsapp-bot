@@ -87,6 +87,7 @@ export interface LandingTranslations {
     valid_until: string;
     conditions: string;
     placeholder: string;
+    all_branches: string;
   };
   contact: {
     title: string;

@@ -7,9 +7,20 @@ type Promotion = {
   conditions: string | null;
   imageUrl: string | null;
   endDate: Date;
+  branches?: { id: number; name: string }[];
 };
 
-export function PromoCard({ promo, dict, locale }: { promo: Promotion; dict: LandingTranslations; locale: string }) {
+export function PromoCard({
+  promo,
+  dict,
+  locale,
+  showBranches = false,
+}: {
+  promo: Promotion;
+  dict: LandingTranslations;
+  locale: string;
+  showBranches?: boolean;
+}) {
   const endDate = new Date(promo.endDate).toLocaleDateString(
     locale === 'en' ? 'en-US' : locale === 'kk' ? 'kk-KZ' : 'ru-RU',
     { day: 'numeric', month: 'long', year: 'numeric' }
@@ -39,8 +50,27 @@ export function PromoCard({ promo, dict, locale }: { promo: Promotion; dict: Lan
           </div>
         )}
 
-        <div className="mt-4 inline-flex items-center gap-1.5 bg-brand/10 text-brand text-xs font-bold px-3 py-1.5 rounded-full">
-          {dict.promotions.valid_until} {endDate}
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 bg-brand/10 text-brand text-xs font-bold px-3 py-1.5 rounded-full">
+            {dict.promotions.valid_until} {endDate}
+          </span>
+          {showBranches && promo.branches && (
+            promo.branches.length === 0 ? (
+              <span className="inline-flex items-center gap-1.5 bg-surface-2 text-gray-300 text-xs font-medium px-3 py-1.5 rounded-full border border-border-subtle">
+                {dict.promotions.all_branches}
+              </span>
+            ) : (
+              promo.branches.map((b) => (
+                <span
+                  key={b.id}
+                  className="inline-flex items-center gap-1 bg-surface-2 text-gray-300 text-xs font-medium px-3 py-1.5 rounded-full border border-border-subtle"
+                >
+                  <span className="text-brand">📍</span>
+                  {b.name}
+                </span>
+              ))
+            )
+          )}
         </div>
       </div>
     </div>
