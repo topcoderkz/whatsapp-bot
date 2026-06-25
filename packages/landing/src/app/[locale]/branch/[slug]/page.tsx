@@ -140,7 +140,26 @@ export default async function BranchPage({
               {dict.branch_page.photos_title}
             </h2>
           </div>
-          <div className="max-w-3xl mx-auto">
+
+          {/* Mobile: inline horizontal carousel, no modal — like an Instagram post */}
+          <div className="md:hidden -mx-4 px-4 overflow-x-auto snap-x snap-mandatory flex gap-3 scrollbar-none pb-2">
+            {photos.map((photo: any) => (
+              <div
+                key={photo.id}
+                className="shrink-0 w-[88%] aspect-[4/3] snap-center rounded-2xl overflow-hidden bg-surface-2"
+              >
+                <img
+                  src={photo.imageUrl}
+                  alt={branch.name}
+                  loading="lazy"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop: existing grid layout with lightbox */}
+          <div className="hidden md:block max-w-3xl mx-auto">
             <BranchGallery photos={photos} branchName={branch.name} dict={dict} />
           </div>
         </SectionWrapper>
