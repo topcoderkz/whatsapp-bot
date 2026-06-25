@@ -16,6 +16,14 @@ export default async function TrainersIndexPage({
 
   const [trainers, branches] = await Promise.all([getTrainers(), getBranches()]);
 
+  // Group trainers by their branch (branches are already sorted by id, trainers by branchId+name).
+  const groups = branches
+    .map((b: any) => ({
+      branch: b,
+      list: (trainers as any[]).filter((t) => t.branch?.id === b.id),
+    }))
+    .filter((g) => g.list.length > 0);
+
   return (
     <main>
       {/* Hero / page header */}
@@ -33,18 +41,28 @@ export default async function TrainersIndexPage({
         </div>
       </section>
 
-      {/* Trainers grid */}
+      {/* Trainers grouped by branch */}
       <section className="py-12 md:py-16 bg-surface-1">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {trainers.length === 0 ? (
+          {groups.length === 0 ? (
             <div className="text-center py-16">
               <div className="text-5xl mb-4">👨‍🏫</div>
               <p className="text-gray-400 text-lg">{dict.trainers.placeholder}</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-              {trainers.map((trainer: any) => (
-                <TrainerCard key={trainer.id} trainer={trainer} dict={dict} locale={validLocale} />
+            <div className="space-y-12 md:space-y-16">
+              {groups.map(({ branch, list }) => (
+                <div key={branch.id}>
+                  <h2 className="text-xl md:text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                    <span className="text-brand">📍</span>
+                    {branch.name}
+                  </h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {list.map((trainer) => (
+                      <TrainerCard key={trainer.id} trainer={trainer} dict={dict} locale={validLocale} />
+                    ))}
+                  </div>
+                </div>
               ))}
             </div>
           )}

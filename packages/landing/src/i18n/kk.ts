@@ -30,6 +30,7 @@ export const kk: LandingTranslations = {
     view_details: 'Филиал туралы толығырақ',
     show_all_photos: 'Барлық фотоны көрсету',
     show_all_trainers: 'Барлық жаттықтырушыларды көрсету',
+    trainers_count_label: 'жаттықтырушы',
   },
   branch_page: {
     back_to_all: 'Барлық филиалдар',

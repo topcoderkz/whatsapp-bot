@@ -30,6 +30,7 @@ export const en: LandingTranslations = {
     view_details: 'Branch details',
     show_all_photos: 'Show all photos',
     show_all_trainers: 'Show all trainers',
+    trainers_count_label: 'trainers',
   },
   branch_page: {
     back_to_all: 'All branches',

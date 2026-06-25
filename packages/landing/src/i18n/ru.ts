@@ -30,6 +30,7 @@ export const ru: LandingTranslations = {
     view_details: 'Подробнее о филиале',
     show_all_photos: 'Показать все фото',
     show_all_trainers: 'Показать всех тренеров',
+    trainers_count_label: 'тренеров',
   },
   branch_page: {
     back_to_all: 'Все филиалы',
