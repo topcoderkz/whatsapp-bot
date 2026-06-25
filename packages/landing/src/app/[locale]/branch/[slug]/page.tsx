@@ -5,6 +5,7 @@ import { getBranchBySlug } from '@/lib/data';
 import { BRANCH_FALLBACK_IMAGES, getMapUrl } from '@/lib/branch-meta';
 import { getWhatsAppUrl } from '@/lib/constants';
 import { BranchGallery } from '@/components/branch-gallery';
+import { PhotoCarousel } from '@/components/photo-carousel';
 import { PricingTable } from '@/components/pricing-table';
 import { TrainerCard } from '@/components/trainer-card';
 import { ClassCard } from '@/components/class-card';
@@ -58,8 +59,36 @@ export default async function BranchPage({
           </Link>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-            {/* Text side */}
-            <div>
+            {/* Image side — first on mobile, right on desktop */}
+            <div className="order-1 lg:order-2">
+              {/* Mobile: swipeable carousel with dot indicator */}
+              <div className="md:hidden">
+                <PhotoCarousel
+                  photos={photos}
+                  branchName={branch.name}
+                  fallback={BRANCH_FALLBACK_IMAGES[branch.address]}
+                />
+              </div>
+              {/* Desktop: single hero image */}
+              <div className="hidden md:block relative aspect-[4/3] rounded-2xl overflow-hidden border border-border-subtle">
+                {heroImage ? (
+                  <img
+                    src={heroImage}
+                    alt={branch.name}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-brand/10 via-surface-2 to-surface-card flex items-center justify-center">
+                    <svg className="w-16 h-16 text-brand/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                    </svg>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Text side — second on mobile, left on desktop */}
+            <div className="order-2 lg:order-1">
               <div className="inline-flex items-center gap-2 bg-brand/10 border border-brand/20 text-brand text-sm font-medium px-4 py-2 rounded-full mb-6">
                 <span className="text-base">📍</span>
                 100% Fitness Gym
@@ -111,58 +140,24 @@ export default async function BranchPage({
                 </a>
               </div>
             </div>
-
-            {/* Image side */}
-            <div className="relative aspect-[4/3] rounded-2xl overflow-hidden border border-border-subtle">
-              {heroImage ? (
-                <img
-                  src={heroImage}
-                  alt={branch.name}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full bg-gradient-to-br from-brand/10 via-surface-2 to-surface-card flex items-center justify-center">
-                  <svg className="w-16 h-16 text-brand/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                  </svg>
-                </div>
-              )}
-            </div>
           </div>
         </div>
       </section>
 
-      {/* Photos gallery (only if there are photos) */}
+      {/* Photos gallery — desktop only (mobile shows the carousel in the hero). */}
       {photos.length > 0 && (
-        <SectionWrapper id="branch-photos" alternate>
-          <div className="text-center mb-10">
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-white">
-              {dict.branch_page.photos_title}
-            </h2>
-          </div>
-
-          {/* Mobile: inline horizontal carousel, no modal — like an Instagram post */}
-          <div className="md:hidden -mx-4 px-4 overflow-x-auto snap-x snap-mandatory flex gap-3 scrollbar-none pb-2">
-            {photos.map((photo: any) => (
-              <div
-                key={photo.id}
-                className="shrink-0 w-[88%] aspect-[4/3] snap-center rounded-2xl overflow-hidden bg-surface-2"
-              >
-                <img
-                  src={photo.imageUrl}
-                  alt={branch.name}
-                  loading="lazy"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            ))}
-          </div>
-
-          {/* Desktop: existing grid layout with lightbox */}
-          <div className="hidden md:block max-w-3xl mx-auto">
-            <BranchGallery photos={photos} branchName={branch.name} dict={dict} />
-          </div>
-        </SectionWrapper>
+        <div className="hidden md:block">
+          <SectionWrapper id="branch-photos" alternate>
+            <div className="text-center mb-10">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-black text-white">
+                {dict.branch_page.photos_title}
+              </h2>
+            </div>
+            <div className="max-w-3xl mx-auto">
+              <BranchGallery photos={photos} branchName={branch.name} dict={dict} />
+            </div>
+          </SectionWrapper>
+        </div>
       )}
 
       {/* Pricing */}
