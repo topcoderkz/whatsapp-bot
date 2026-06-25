@@ -6,7 +6,7 @@ import { LanguageSwitcher } from './language-switcher';
 import type { LandingTranslations } from '@/i18n/types';
 import { getWhatsAppUrl } from '@/lib/constants';
 
-const NAV_SECTIONS = ['about', 'branches', 'pricing', 'trainers', 'classes', 'promotions', 'contact'] as const;
+const NAV_SECTIONS = ['branches', 'promotions', 'contact'] as const;
 
 export function Navbar({ dict, locale }: { dict: LandingTranslations; locale: string }) {
   const [scrolled, setScrolled] = useState(false);

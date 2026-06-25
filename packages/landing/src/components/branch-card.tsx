@@ -1,5 +1,7 @@
+import Link from 'next/link';
 import { BranchGallery } from './branch-gallery';
 import type { LandingTranslations } from '@/i18n/types';
+import { BRANCH_FALLBACK_IMAGES, getMapUrl } from '@/lib/branch-meta';
 
 type BranchPhoto = {
   id: number;
@@ -9,6 +11,7 @@ type BranchPhoto = {
 
 type Branch = {
   id: number;
+  slug: string;
   name: string;
   address: string;
   phone: string;
@@ -16,36 +19,26 @@ type Branch = {
   photos: BranchPhoto[];
 };
 
-// Fallback images for branches without uploaded gallery photos
-const BRANCH_IMAGES: Record<string, string> = {
-  'Байзакова 280, 3 этаж': '/images/branches/baizakova.jpg',
-  'Кожамкулова 136': '/images/branches/kozhamkulova.jpg',
-  'Кабанбай батыра 147': '/images/branches/kabanbai.jpg',
-  'Макатаева 45, 3 этаж': '/images/branches/makataeva.jpg',
-};
-
-// Map branch addresses to their direct 2GIS short links
-const GIS_LINKS: Record<string, string> = {
-  'Байзакова 280, 3 этаж': 'https://go.2gis.com/bLzQu',
-  'Кожамкулова 136': 'https://go.2gis.com/Ocamg',
-  'Кабанбай батыра 147': 'https://go.2gis.com/3eviR',
-  'Макатаева 45, 3 этаж': 'https://go.2gis.com/ELcw6',
-};
-
-function getMapUrl(address: string): string {
-  return GIS_LINKS[address] || `https://2gis.kz/almaty/search/${encodeURIComponent(address)}`;
-}
-
-export function BranchCard({ branch, dict }: { branch: Branch; dict: LandingTranslations }) {
+export function BranchCard({ branch, dict, locale }: { branch: Branch; dict: LandingTranslations; locale: string }) {
   const mapUrl = getMapUrl(branch.address);
   const hasGallery = branch.photos.length > 0;
-  const fallbackImage = BRANCH_IMAGES[branch.address];
+  const fallbackImage = BRANCH_FALLBACK_IMAGES[branch.address];
 
   return (
-    <div className="bg-surface-card border border-border-subtle rounded-2xl overflow-hidden hover:border-brand/50 transition-all group">
-      {/* Gallery or fallback single image */}
+    <div className="relative bg-surface-card border border-border-subtle rounded-2xl overflow-hidden hover:border-brand/50 hover:shadow-lg hover:shadow-brand/10 transition-all group">
+      {/* Stretched link — covers the whole card. Inner interactive elements
+          (gallery thumbnails, phone, 2GIS) sit on top via z-20. */}
+      <Link
+        href={`/${locale}/branch/${branch.slug}`}
+        aria-label={`${branch.name} — ${dict.branches.view_details}`}
+        className="absolute inset-0 z-10"
+      />
+
+      {/* Gallery — z-20 so its modal-trigger clicks fire instead of navigating */}
       {hasGallery ? (
-        <BranchGallery photos={branch.photos} branchName={branch.name} dict={dict} />
+        <div className="relative z-20">
+          <BranchGallery photos={branch.photos} branchName={branch.name} dict={dict} />
+        </div>
       ) : (
         <div className="h-48 overflow-hidden relative">
           {fallbackImage ? (
@@ -62,19 +55,19 @@ export function BranchCard({ branch, dict }: { branch: Branch; dict: LandingTran
               </svg>
             </div>
           )}
-          {/* Dark overlay at bottom */}
           <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/50 to-transparent" />
         </div>
       )}
 
       <div className="p-6 -mt-8 relative">
-        {/* Header with orange accent */}
         <div className="flex items-start gap-4">
           <div className="shrink-0 w-12 h-12 bg-brand rounded-xl flex items-center justify-center text-white text-xl shadow-lg">
             📍
           </div>
           <div>
-            <h3 className="text-lg font-bold text-white">{branch.name}</h3>
+            <h3 className="text-lg font-bold text-white group-hover:text-brand transition-colors">
+              {branch.name}
+            </h3>
             <p className="text-sm text-gray-400 mt-1">{branch.address}</p>
           </div>
         </div>
@@ -82,7 +75,10 @@ export function BranchCard({ branch, dict }: { branch: Branch; dict: LandingTran
         <div className="mt-5 space-y-3">
           <div className="flex items-center gap-3 text-sm">
             <span className="text-gray-500">{dict.branches.phone}:</span>
-            <a href={`tel:${branch.phone}`} className="text-gray-300 hover:text-brand transition-colors">
+            <a
+              href={`tel:${branch.phone}`}
+              className="relative z-20 text-gray-300 hover:text-brand transition-colors"
+            >
               {branch.phone}
             </a>
           </div>
@@ -92,17 +88,25 @@ export function BranchCard({ branch, dict }: { branch: Branch; dict: LandingTran
           </div>
         </div>
 
-        <a
-          href={mapUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="mt-5 inline-flex items-center gap-2 text-sm text-brand hover:text-brand-light transition-colors"
-        >
-          {dict.branches.view_map} — 2GIS
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-          </svg>
-        </a>
+        <div className="mt-5 flex items-center justify-between gap-3">
+          <a
+            href={mapUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="relative z-20 inline-flex items-center gap-2 text-sm text-gray-300 hover:text-brand transition-colors"
+          >
+            {dict.branches.view_map} — 2GIS
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+          </a>
+          <span className="inline-flex items-center gap-1 text-sm text-gray-500 group-hover:text-brand transition-colors">
+            {dict.branches.view_details}
+            <svg className="w-4 h-4 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+            </svg>
+          </span>
+        </div>
       </div>
     </div>
   );

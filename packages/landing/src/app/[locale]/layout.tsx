@@ -13,7 +13,7 @@ export function generateStaticParams() {
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  const validLocale = isValidLocale(locale) ? locale : 'kk';
+  const validLocale = isValidLocale(locale) ? locale : 'ru';
   const dict = getDictionary(validLocale);
 
   return {
@@ -50,7 +50,7 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const validLocale = isValidLocale(locale) ? locale : 'kk';
+  const validLocale = isValidLocale(locale) ? locale : 'ru';
   const dict = getDictionary(validLocale);
 
   return (

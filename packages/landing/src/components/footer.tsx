@@ -1,7 +1,7 @@
 import type { LandingTranslations } from '@/i18n/types';
 import { getWhatsAppUrl, INSTAGRAM_URL, THREADS_URL } from '@/lib/constants';
 
-const NAV_SECTIONS = ['about', 'branches', 'pricing', 'trainers', 'classes', 'contact'] as const;
+const NAV_SECTIONS = ['branches', 'promotions', 'contact'] as const;
 
 export function Footer({ dict, locale }: { dict: LandingTranslations; locale: string }) {
   return (

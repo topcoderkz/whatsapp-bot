@@ -11,7 +11,7 @@ const WHATSAPP_GREETINGS: Record<string, string> = {
 };
 
 export function getWhatsAppUrl(locale?: string): string {
-  const greeting = WHATSAPP_GREETINGS[locale || 'kk'] || WHATSAPP_GREETINGS.kk;
+  const greeting = WHATSAPP_GREETINGS[locale || 'ru'] || WHATSAPP_GREETINGS.ru;
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(greeting)}`;
 }
 

@@ -78,3 +78,44 @@ export const getActivePromotions = unstable_cache(
   ['active-promotions'],
   { revalidate: 300 }
 );
+
+export const getActiveBranchSlugs = unstable_cache(
+  async () => {
+    const branches = await prisma.branch.findMany({
+      where: { isActive: true },
+      select: { slug: true },
+    });
+    return branches.map((b) => b.slug);
+  },
+  ['branch-slugs'],
+  { revalidate: 300 }
+);
+
+export async function getBranchBySlug(slug: string) {
+  try {
+    return await prisma.branch.findFirst({
+      where: { slug, isActive: true },
+      include: {
+        photos: { orderBy: { displayOrder: 'asc' } },
+        memberships: {
+          where: { isActive: true },
+          orderBy: { displayOrder: 'asc' },
+        },
+        trainers: {
+          where: { isActive: true },
+          orderBy: { name: 'asc' },
+        },
+        groupClasses: {
+          where: { isActive: true },
+          include: { trainer: { select: { name: true } } },
+          orderBy: { name: 'asc' },
+        },
+      },
+    });
+  } catch {
+    // Fallback if any related table is missing (defensive — matches getBranches pattern)
+    return prisma.branch.findFirst({
+      where: { slug, isActive: true },
+    });
+  }
+}

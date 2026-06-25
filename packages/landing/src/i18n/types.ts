@@ -3,11 +3,7 @@ export type Locale = 'kk' | 'ru' | 'en';
 export interface LandingTranslations {
   meta: { title: string; description: string };
   nav: {
-    about: string;
     branches: string;
-    pricing: string;
-    trainers: string;
-    classes: string;
     promotions: string;
     contact: string;
     whatsapp_cta: string;
@@ -20,18 +16,6 @@ export interface LandingTranslations {
     app_title: string;
     app_description: string;
   };
-  about: {
-    title: string;
-    description: string;
-    stat_branches: string;
-    stat_branches_desc: string;
-    stat_price: string;
-    stat_price_desc: string;
-    stat_schedule: string;
-    stat_schedule_desc: string;
-    stat_trainers: string;
-    stat_trainers_desc: string;
-  };
   branches: {
     title: string;
     subtitle: string;
@@ -39,7 +23,18 @@ export interface LandingTranslations {
     phone: string;
     hours: string;
     view_map: string;
+    view_details: string;
     show_all_photos: string;
+  };
+  branch_page: {
+    back_to_all: string;
+    photos_title: string;
+    pricing_title: string;
+    trainers_title: string;
+    classes_title: string;
+    contact_title: string;
+    no_trainers: string;
+    no_classes: string;
   };
   pricing: {
     title: string;

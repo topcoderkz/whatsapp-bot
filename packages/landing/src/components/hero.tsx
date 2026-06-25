@@ -1,6 +1,12 @@
 import type { LandingTranslations } from '@/i18n/types';
 import { getWhatsAppUrl } from '@/lib/constants';
 
+function isBrandWord(word: string): boolean {
+  if (word.includes('100%')) return true;
+  const lower = word.toLowerCase();
+  return lower.includes('фитнес') || lower.includes('fitness');
+}
+
 export function Hero({ dict, locale }: { dict: LandingTranslations; locale: string }) {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -24,9 +30,7 @@ export function Hero({ dict, locale }: { dict: LandingTranslations; locale: stri
         <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-tight max-w-4xl mx-auto">
           {dict.hero.headline.split(' ').map((word, i) => (
             <span key={i}>
-              {word.includes('100%') || word.includes('фитнес') || word.includes('Fitness') || word.includes('берілу') || word.includes('отдача') || word.includes('Committed')
-                ? <span className="text-brand">{word}</span>
-                : word}
+              {isBrandWord(word) ? <span className="text-brand">{word}</span> : word}
               {' '}
             </span>
           ))}
@@ -49,7 +53,7 @@ export function Hero({ dict, locale }: { dict: LandingTranslations; locale: stri
             {dict.hero.cta}
           </a>
           <a
-            href="#pricing"
+            href="#branches"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 text-gray-300 font-bold text-lg px-8 py-4 rounded-full border border-border-subtle hover:border-brand/50 hover:text-white transition-colors"
           >
             {dict.hero.cta_secondary}
