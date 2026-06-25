@@ -7,6 +7,7 @@ export const en: LandingTranslations = {
   },
   nav: {
     branches: 'Branches',
+    trainers: 'Trainers',
     promotions: 'Promos',
     contact: 'Contact',
     whatsapp_cta: 'Chat on WhatsApp',
@@ -63,6 +64,13 @@ export const en: LandingTranslations = {
     years: 'years',
     specialization: 'Specialization',
     placeholder: 'Trainer information coming soon',
+  },
+  trainer_page: {
+    back_to_all: 'All trainers',
+    bio_title: 'About the trainer',
+    classes_title: 'Group classes with this trainer',
+    branch_label: 'Branch',
+    experience_label: 'Experience',
   },
   classes: {
     title: 'Group Classes',

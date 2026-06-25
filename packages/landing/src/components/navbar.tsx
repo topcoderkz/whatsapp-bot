@@ -6,7 +6,15 @@ import { LanguageSwitcher } from './language-switcher';
 import type { LandingTranslations } from '@/i18n/types';
 import { getWhatsAppUrl } from '@/lib/constants';
 
-const NAV_SECTIONS = ['branches', 'promotions', 'contact'] as const;
+type NavItem = { key: 'branches' | 'trainers' | 'promotions' | 'contact'; href: (locale: string) => string };
+
+// Anchors include the leading slash so they work from any page (landing then scroll).
+const NAV_ITEMS: NavItem[] = [
+  { key: 'branches', href: (l) => `/${l}#branches` },
+  { key: 'trainers', href: (l) => `/${l}/trainers` },
+  { key: 'promotions', href: (l) => `/${l}#promotions` },
+  { key: 'contact', href: (l) => `/${l}#contact` },
+];
 
 export function Navbar({ dict, locale }: { dict: LandingTranslations; locale: string }) {
   const [scrolled, setScrolled] = useState(false);
@@ -34,13 +42,13 @@ export function Navbar({ dict, locale }: { dict: LandingTranslations; locale: st
 
           {/* Desktop nav */}
           <nav className="hidden lg:flex items-center gap-6">
-            {NAV_SECTIONS.map((section) => (
+            {NAV_ITEMS.map((item) => (
               <a
-                key={section}
-                href={`#${section}`}
+                key={item.key}
+                href={item.href(locale)}
                 className="text-sm text-gray-300 hover:text-brand transition-colors"
               >
-                {dict.nav[section as keyof typeof dict.nav]}
+                {dict.nav[item.key]}
               </a>
             ))}
           </nav>
@@ -79,14 +87,14 @@ export function Navbar({ dict, locale }: { dict: LandingTranslations; locale: st
       {menuOpen && (
         <div className="lg:hidden bg-surface-1/98 backdrop-blur-md border-t border-border-subtle">
           <nav className="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-3">
-            {NAV_SECTIONS.map((section) => (
+            {NAV_ITEMS.map((item) => (
               <a
-                key={section}
-                href={`#${section}`}
+                key={item.key}
+                href={item.href(locale)}
                 onClick={() => setMenuOpen(false)}
                 className="text-gray-300 hover:text-brand py-2 transition-colors"
               >
-                {dict.nav[section as keyof typeof dict.nav]}
+                {dict.nav[item.key]}
               </a>
             ))}
             <a

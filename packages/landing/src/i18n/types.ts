@@ -4,6 +4,7 @@ export interface LandingTranslations {
   meta: { title: string; description: string };
   nav: {
     branches: string;
+    trainers: string;
     promotions: string;
     contact: string;
     whatsapp_cta: string;
@@ -60,6 +61,13 @@ export interface LandingTranslations {
     years: string;
     specialization: string;
     placeholder: string;
+  };
+  trainer_page: {
+    back_to_all: string;
+    bio_title: string;
+    classes_title: string;
+    branch_label: string;
+    experience_label: string;
   };
   classes: {
     title: string;

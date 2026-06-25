@@ -7,6 +7,7 @@ export const kk: LandingTranslations = {
   },
   nav: {
     branches: 'Филиалдар',
+    trainers: 'Жаттықтырушылар',
     promotions: 'Акциялар',
     contact: 'Байланыс',
     whatsapp_cta: 'WhatsApp-қа жазу',
@@ -63,6 +64,13 @@ export const kk: LandingTranslations = {
     years: 'жыл',
     specialization: 'Мамандануы',
     placeholder: 'Жаттықтырушылар туралы ақпарат жақында қосылады',
+  },
+  trainer_page: {
+    back_to_all: 'Барлық жаттықтырушылар',
+    bio_title: 'Жаттықтырушы туралы',
+    classes_title: 'Жаттықтырушымен топтық жаттығулар',
+    branch_label: 'Филиал',
+    experience_label: 'Тәжірибе',
   },
   classes: {
     title: 'Топтық жаттығулар',

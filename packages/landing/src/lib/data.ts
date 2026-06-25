@@ -91,6 +91,23 @@ export const getActiveBranchSlugs = unstable_cache(
   { revalidate: 300 }
 );
 
+export async function getTrainerById(id: number) {
+  try {
+    return await prisma.trainer.findFirst({
+      where: { id, isActive: true },
+      include: {
+        branch: { select: { id: true, name: true, slug: true } },
+        groupClasses: {
+          where: { isActive: true },
+          orderBy: { name: 'asc' },
+        },
+      },
+    });
+  } catch {
+    return null;
+  }
+}
+
 export async function getBranchBySlug(slug: string) {
   try {
     return await prisma.branch.findFirst({

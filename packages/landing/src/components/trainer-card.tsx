@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { LandingTranslations } from '@/i18n/types';
 
 type Trainer = {
@@ -9,9 +10,12 @@ type Trainer = {
   branch: { id: number; name: string };
 };
 
-export function TrainerCard({ trainer, dict }: { trainer: Trainer; dict: LandingTranslations }) {
+export function TrainerCard({ trainer, dict, locale }: { trainer: Trainer; dict: LandingTranslations; locale: string }) {
   return (
-    <div className="bg-surface-card border border-border-subtle rounded-2xl overflow-hidden hover:border-brand/50 transition-all group">
+    <Link
+      href={`/${locale}/trainers/${trainer.id}`}
+      className="block bg-surface-card border border-border-subtle rounded-2xl overflow-hidden hover:border-brand/50 hover:shadow-lg hover:shadow-brand/10 transition-all group"
+    >
       {/* Photo area */}
       <div className="relative aspect-[3/4] bg-gradient-to-br from-surface-2 to-surface-card flex items-center justify-center overflow-hidden">
         {trainer.photoUrl ? (
@@ -28,12 +32,11 @@ export function TrainerCard({ trainer, dict }: { trainer: Trainer; dict: Landing
             </svg>
           </div>
         )}
-        {/* Orange gradient overlay at bottom */}
         <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-surface-card to-transparent" />
       </div>
 
       <div className="p-5">
-        <h3 className="text-lg font-bold text-white">{trainer.name}</h3>
+        <h3 className="text-lg font-bold text-white group-hover:text-brand transition-colors">{trainer.name}</h3>
         <p className="text-sm text-gray-500 mt-0.5">{trainer.branch.name}</p>
 
         {trainer.specialization && (
@@ -49,6 +52,6 @@ export function TrainerCard({ trainer, dict }: { trainer: Trainer; dict: Landing
           </div>
         )}
       </div>
-    </div>
+    </Link>
   );
 }

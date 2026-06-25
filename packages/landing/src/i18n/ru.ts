@@ -7,6 +7,7 @@ export const ru: LandingTranslations = {
   },
   nav: {
     branches: 'Филиалы',
+    trainers: 'Тренеры',
     promotions: 'Акции',
     contact: 'Контакты',
     whatsapp_cta: 'Написать в WhatsApp',
@@ -63,6 +64,13 @@ export const ru: LandingTranslations = {
     years: 'лет',
     specialization: 'Специализация',
     placeholder: 'Информация о тренерах скоро появится',
+  },
+  trainer_page: {
+    back_to_all: 'Все тренеры',
+    bio_title: 'О тренере',
+    classes_title: 'Групповые занятия с тренером',
+    branch_label: 'Филиал',
+    experience_label: 'Опыт',
   },
   classes: {
     title: 'Групповые занятия',

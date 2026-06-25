@@ -1,7 +1,14 @@
 import type { LandingTranslations } from '@/i18n/types';
 import { getWhatsAppUrl, INSTAGRAM_URL, THREADS_URL } from '@/lib/constants';
 
-const NAV_SECTIONS = ['branches', 'promotions', 'contact'] as const;
+type NavItem = { key: 'branches' | 'trainers' | 'promotions' | 'contact'; href: (locale: string) => string };
+
+const NAV_ITEMS: NavItem[] = [
+  { key: 'branches', href: (l) => `/${l}#branches` },
+  { key: 'trainers', href: (l) => `/${l}/trainers` },
+  { key: 'promotions', href: (l) => `/${l}#promotions` },
+  { key: 'contact', href: (l) => `/${l}#contact` },
+];
 
 export function Footer({ dict, locale }: { dict: LandingTranslations; locale: string }) {
   return (
@@ -20,13 +27,13 @@ export function Footer({ dict, locale }: { dict: LandingTranslations; locale: st
               {dict.footer.nav_title}
             </h4>
             <nav className="flex flex-col gap-2">
-              {NAV_SECTIONS.map((section) => (
+              {NAV_ITEMS.map((item) => (
                 <a
-                  key={section}
-                  href={`#${section}`}
+                  key={item.key}
+                  href={item.href(locale)}
                   className="text-sm text-gray-400 hover:text-brand transition-colors"
                 >
-                  {dict.nav[section as keyof typeof dict.nav]}
+                  {dict.nav[item.key]}
                 </a>
               ))}
             </nav>

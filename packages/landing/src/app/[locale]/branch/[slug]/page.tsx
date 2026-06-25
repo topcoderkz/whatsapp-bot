@@ -201,6 +201,7 @@ export default async function BranchPage({
                 key={trainer.id}
                 trainer={{ ...trainer, branch: { id: branch.id, name: branch.name } }}
                 dict={dict}
+                locale={validLocale}
               />
             ))}
           </div>
