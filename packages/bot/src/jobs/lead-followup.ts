@@ -4,7 +4,7 @@ import { notificationService } from '../services/notification.service';
 // Plain client (no soft-delete extension) — same pattern as booking-cleanup.ts
 const jobPrisma = new PrismaClient();
 
-const SILENCE_THRESHOLD_MS = 15 * 60 * 1000;
+const SILENCE_THRESHOLD_MS = 5 * 60 * 1000;
 const FOLLOWUP_INTERVAL_MS = 5 * 60 * 1000;
 
 export async function runOnce(): Promise<void> {
