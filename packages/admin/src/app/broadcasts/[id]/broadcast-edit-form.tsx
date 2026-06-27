@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { updateBroadcast, sendBroadcast } from '@/lib/actions';
 import { useRouter } from 'next/navigation';
+import { LocalTime } from '@/components/local-time';
 
 interface Branch {
   id: number;
@@ -96,7 +97,7 @@ export function BroadcastEditForm({ broadcast, branches }: { broadcast: Broadcas
             <div>
               <label className="block text-sm font-medium text-gray-500 mb-1">Дата</label>
               <p className="text-sm text-gray-900">
-                {broadcast.sentAt ? new Date(broadcast.sentAt).toLocaleString('ru-RU') : new Date(broadcast.createdAt).toLocaleString('ru-RU')}
+                <LocalTime iso={(broadcast.sentAt ?? broadcast.createdAt) as unknown as string} />
               </p>
             </div>
           </div>

@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import clsx from 'clsx';
 import { AdminLayout } from '@/components/admin-layout';
+import { LocalTime } from '@/components/local-time';
 import { prisma } from '@/lib/db';
 import { stateLabel } from '@/lib/state-labels';
 
@@ -28,10 +29,6 @@ const STATUS_BADGE: Record<'booked' | 'active' | 'dropped', { label: string; cls
   active: { label: 'В диалоге', cls: 'bg-blue-100 text-blue-700' },
   dropped: { label: 'Не дошёл', cls: 'bg-yellow-100 text-yellow-700' },
 };
-
-function formatDateTime(d: Date) {
-  return d.toLocaleString('ru-RU', { dateStyle: 'short', timeStyle: 'short' });
-}
 
 export default async function LeadsPage({
   searchParams,
@@ -122,8 +119,8 @@ export default async function LeadsPage({
                   <td className="px-4 py-3 text-sm text-gray-500">{stateLabel(l.lastState)}</td>
                   <td className="px-4 py-3 text-sm text-gray-500">{l.branch?.name ?? '—'}</td>
                   <td className="px-4 py-3 text-sm text-gray-500">{l.messageCount}</td>
-                  <td className="px-4 py-3 text-sm text-gray-500">{formatDateTime(l.firstSeenAt)}</td>
-                  <td className="px-4 py-3 text-sm text-gray-500">{formatDateTime(l.lastMessageAt)}</td>
+                  <td className="px-4 py-3 text-sm text-gray-500"><LocalTime iso={l.firstSeenAt.toISOString()} /></td>
+                  <td className="px-4 py-3 text-sm text-gray-500"><LocalTime iso={l.lastMessageAt.toISOString()} /></td>
                 </tr>
               );
             })}
