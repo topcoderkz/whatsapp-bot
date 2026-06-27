@@ -4,11 +4,11 @@ import { notificationService } from '../services/notification.service';
 // Plain client (no soft-delete extension) — same pattern as booking-cleanup.ts
 const jobPrisma = new PrismaClient();
 
-const SILENCE_THRESHOLD_HOURS = 1;
-const FOLLOWUP_INTERVAL_MS = 15 * 60 * 1000;
+const SILENCE_THRESHOLD_MS = 15 * 60 * 1000;
+const FOLLOWUP_INTERVAL_MS = 5 * 60 * 1000;
 
 export async function runOnce(): Promise<void> {
-  const cutoff = new Date(Date.now() - SILENCE_THRESHOLD_HOURS * 60 * 60 * 1000);
+  const cutoff = new Date(Date.now() - SILENCE_THRESHOLD_MS);
 
   const candidates = await (jobPrisma as any).lead.findMany({
     where: {
@@ -40,7 +40,7 @@ export async function runOnce(): Promise<void> {
 }
 
 export function startLeadFollowup() {
-  console.log(`[LeadFollowup] Started — running every ${FOLLOWUP_INTERVAL_MS / 60000} minutes`);
+  console.log(`[LeadFollowup] Started — running every ${FOLLOWUP_INTERVAL_MS / 60000} min, silence threshold ${SILENCE_THRESHOLD_MS / 60000} min`);
   runOnce().catch((err) => console.error('[LeadFollowup] Initial run failed:', err));
   setInterval(() => {
     runOnce().catch((err) => console.error('[LeadFollowup] Tick failed:', err));
