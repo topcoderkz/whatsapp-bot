@@ -15,6 +15,7 @@ const navItems = [
   { href: '/promotions', label: 'Акции', icon: '🎁' },
   { href: '/bookings', label: 'Записи', icon: '📅' },
   { href: '/leads', label: 'Лиды', icon: '💬' },
+  { href: '/notifications', label: 'Уведомления', icon: '🔔' },
   { href: '/clients', label: 'Клиенты', icon: '👤' },
   { href: '/broadcasts', label: 'Рассылки', icon: '📨' },
   { href: '/admins', label: 'Администраторы', icon: '🛡️' },
