@@ -16,6 +16,17 @@ export interface LandingTranslations {
     cta_secondary: string;
     app_title: string;
     app_description: string;
+    badge: string;
+    tiles: {
+      whatsapp: string;
+      instagram: string;
+      download_app: string;
+    };
+    download_sheet: {
+      title: string;
+      subtitle: string;
+      close: string;
+    };
   };
   branches: {
     title: string;

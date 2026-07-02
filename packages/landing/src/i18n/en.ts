@@ -19,6 +19,17 @@ export const en: LandingTranslations = {
     cta_secondary: 'Our Branches',
     app_title: 'Download our app',
     app_description: 'An app that supports and guides you',
+    badge: '100% Fitness Gym — Almaty',
+    tiles: {
+      whatsapp: 'Chat on WhatsApp',
+      instagram: 'Message on Instagram',
+      download_app: 'Download the app',
+    },
+    download_sheet: {
+      title: 'Download the app',
+      subtitle: 'Choose your platform',
+      close: 'Close',
+    },
   },
   branches: {
     title: 'Our Branches',

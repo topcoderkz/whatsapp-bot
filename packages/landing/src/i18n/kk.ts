@@ -19,6 +19,17 @@ export const kk: LandingTranslations = {
     cta_secondary: 'Біздің филиалдар',
     app_title: 'Қолданбаны жүктеп алыңыз',
     app_description: 'Сізді қолдайтын және бағыт көрсететін қолданба',
+    badge: '100% Fitness Gym — Almaty',
+    tiles: {
+      whatsapp: 'WhatsApp-қа жазу',
+      instagram: 'Instagram-ға жазу',
+      download_app: 'Қолданбаны жүктеп алу',
+    },
+    download_sheet: {
+      title: 'Қолданбаны жүктеп алу',
+      subtitle: 'Платформаны таңдаңыз',
+      close: 'Жабу',
+    },
   },
   branches: {
     title: 'Біздің филиалдар',
