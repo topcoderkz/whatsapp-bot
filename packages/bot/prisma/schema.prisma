@@ -229,18 +229,19 @@ enum BroadcastFilter {
 }
 
 model BroadcastMessage {
-  id             Int             @id @default(autoincrement())
-  title          String
-  messageText    String          @map("message_text")
-  templateName   String?         @map("template_name")
-  targetBranchId Int?            @map("target_branch_id")
-  targetBranch   Branch?         @relation(fields: [targetBranchId], references: [id])
-  targetFilter   BroadcastFilter @default(ALL) @map("target_filter")
-  status         BroadcastStatus @default(DRAFT)
-  sentCount      Int             @default(0) @map("sent_count")
-  failedCount    Int             @default(0) @map("failed_count")
-  createdAt      DateTime        @default(now()) @map("created_at")
-  sentAt         DateTime?       @map("sent_at")
+  id                Int             @id @default(autoincrement())
+  title             String
+  messageText       String          @map("message_text")
+  templateName      String?         @map("template_name")
+  templateVariables Json?           @map("template_variables")
+  targetBranchId    Int?            @map("target_branch_id")
+  targetBranch      Branch?         @relation(fields: [targetBranchId], references: [id])
+  targetFilter      BroadcastFilter @default(ALL) @map("target_filter")
+  status            BroadcastStatus @default(DRAFT)
+  sentCount         Int             @default(0) @map("sent_count")
+  failedCount       Int             @default(0) @map("failed_count")
+  createdAt         DateTime        @default(now()) @map("created_at")
+  sentAt            DateTime?       @map("sent_at")
 
   notifications NotificationLog[]
 

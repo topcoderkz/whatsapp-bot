@@ -220,21 +220,29 @@ export const notificationService = {
       data: { status: 'SENDING' },
     });
 
-    const sanitizedText = sanitizeBroadcastParam(broadcast.messageText);
+    // Resolve template + params. New rows carry templateVariables (one per
+    // {{n}}); legacy rows only have messageText — treat that as a single-param
+    // template. Every param gets sanitized individually since Meta rejects
+    // newlines/tabs regardless of position.
+    const templateName = broadcast.templateName || config.templates.broadcast;
+    const rawVariables: string[] = Array.isArray(broadcast.templateVariables)
+      ? (broadcast.templateVariables as string[])
+      : [broadcast.messageText];
+    const sanitizedVariables = rawVariables.map((v) => sanitizeBroadcastParam(v ?? ''));
 
     for (const phone of recipients) {
       try {
         const result = await whatsappClient.sendTemplate(
           phone,
-          broadcast.templateName || config.templates.broadcast,
-          [sanitizedText]
+          templateName,
+          sanitizedVariables
         );
 
         await (prisma as any).notificationLog.create({
           data: {
             broadcastId: broadcast.id,
             recipientPhone: phone,
-            templateName: broadcast.templateName || config.templates.broadcast,
+            templateName,
             status: 'SENT',
             waMessageId: result.messageId,
             sentAt: new Date(),
@@ -247,7 +255,7 @@ export const notificationService = {
           data: {
             broadcastId: broadcast.id,
             recipientPhone: phone,
-            templateName: broadcast.templateName || config.templates.broadcast,
+            templateName,
             status: 'FAILED',
             errorMessage: (err as Error).message,
           },

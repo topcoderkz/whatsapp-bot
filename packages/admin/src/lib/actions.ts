@@ -3,6 +3,7 @@
 import { prisma } from './db';
 import { revalidatePath } from 'next/cache';
 import bcrypt from 'bcryptjs';
+import { getBroadcastTemplate, summarizeBroadcast } from './broadcast-templates';
 
 // ─── Branches ───
 
@@ -278,16 +279,37 @@ export async function importClients(clients: Array<{ phone: string; name?: strin
 
 // ─── Broadcasts ───
 
-export async function createBroadcast(formData: FormData) {
-  const broadcast = await prisma.broadcastMessage.create({
-    data: {
-      title: formData.get('title') as string,
-      messageText: formData.get('messageText') as string,
-      templateName: (formData.get('templateName') as string) || null,
-      targetBranchId: formData.get('targetBranchId') ? parseInt(formData.get('targetBranchId') as string, 10) : null,
-      targetFilter: (formData.get('targetFilter') as any) || 'ALL',
-    },
+function readBroadcastFormData(formData: FormData) {
+  const templateId = formData.get('templateId') as string;
+  const template = getBroadcastTemplate(templateId);
+  if (!template) {
+    throw new Error(`Неизвестный шаблон: ${templateId}`);
+  }
+
+  // Collect one value per template field, in variableIndex order.
+  const values = template.fields.map((f) => {
+    const raw = (formData.get(`var_${f.variableIndex}`) as string | null) ?? '';
+    if (raw.length > f.maxLength) {
+      throw new Error(`Поле "${f.label}" длиннее ${f.maxLength} символов`);
+    }
+    return raw;
   });
+
+  return {
+    title: formData.get('title') as string,
+    templateName: template.id,
+    templateVariables: values,
+    messageText: summarizeBroadcast(template, values),
+    targetBranchId: formData.get('targetBranchId')
+      ? parseInt(formData.get('targetBranchId') as string, 10)
+      : null,
+    targetFilter: (formData.get('targetFilter') as any) || 'ALL',
+  };
+}
+
+export async function createBroadcast(formData: FormData) {
+  const data = readBroadcastFormData(formData);
+  const broadcast = await prisma.broadcastMessage.create({ data });
   revalidatePath('/broadcasts');
   return broadcast.id;
 }
@@ -297,17 +319,8 @@ export async function updateBroadcast(id: number, formData: FormData) {
   if (!existing || existing.status !== 'DRAFT') {
     throw new Error('Можно редактировать только черновики');
   }
-
-  await prisma.broadcastMessage.update({
-    where: { id },
-    data: {
-      title: formData.get('title') as string,
-      messageText: formData.get('messageText') as string,
-      templateName: (formData.get('templateName') as string) || null,
-      targetBranchId: formData.get('targetBranchId') ? parseInt(formData.get('targetBranchId') as string, 10) : null,
-      targetFilter: (formData.get('targetFilter') as any) || 'ALL',
-    },
-  });
+  const data = readBroadcastFormData(formData);
+  await prisma.broadcastMessage.update({ where: { id }, data });
   revalidatePath('/broadcasts');
 }
 
