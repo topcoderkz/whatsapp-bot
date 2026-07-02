@@ -1,6 +1,7 @@
 import { whatsappClient } from '../whatsapp/client';
 import { prisma } from '../db/client';
 import { config } from '../config';
+import { sanitizeBroadcastParam } from './broadcast-sanitize';
 
 const MAX_RETRIES = 2;
 const RETRY_DELAY_MS = 5000;
@@ -219,12 +220,14 @@ export const notificationService = {
       data: { status: 'SENDING' },
     });
 
+    const sanitizedText = sanitizeBroadcastParam(broadcast.messageText);
+
     for (const phone of recipients) {
       try {
         const result = await whatsappClient.sendTemplate(
           phone,
           broadcast.templateName || config.templates.broadcast,
-          [broadcast.messageText]
+          [sanitizedText]
         );
 
         await (prisma as any).notificationLog.create({

@@ -4,6 +4,7 @@ import { useState, useTransition } from 'react';
 import { updateBroadcast, sendBroadcast } from '@/lib/actions';
 import { useRouter } from 'next/navigation';
 import { LocalTime } from '@/components/local-time';
+import { sanitizeBroadcastParam } from '@/lib/broadcast-sanitize';
 
 interface Branch {
   id: number;
@@ -47,6 +48,8 @@ export function BroadcastEditForm({ broadcast, branches }: { broadcast: Broadcas
   const [filter, setFilter] = useState(broadcast.targetFilter);
   const [saved, setSaved] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [messageText, setMessageText] = useState(broadcast.messageText);
+  const preview = sanitizeBroadcastParam(messageText);
 
   function handleSave(formData: FormData) {
     startTransition(async () => {
@@ -210,7 +213,20 @@ export function BroadcastEditForm({ broadcast, branches }: { broadcast: Broadcas
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Текст сообщения</label>
-            <textarea name="messageText" required rows={4} defaultValue={broadcast.messageText} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+            <textarea
+              name="messageText"
+              required
+              rows={6}
+              value={messageText}
+              onChange={(e) => setMessageText(e.target.value)}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+            />
+            <p className="mt-1.5 text-xs text-gray-500">
+              WhatsApp не поддерживает переносы строк в шаблонах рассылок — они будут заменены пробелами. Ниже показано, как сообщение получат клиенты.
+            </p>
+            <div className="mt-2 rounded-lg bg-gray-50 border border-gray-200 px-3 py-2 text-sm text-gray-800 min-h-[3rem] whitespace-pre-wrap break-words">
+              {preview || <span className="text-gray-400">Превью появится здесь.</span>}
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
