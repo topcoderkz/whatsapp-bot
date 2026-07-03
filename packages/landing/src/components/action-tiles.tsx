@@ -6,14 +6,6 @@ import {
   getWhatsAppUrl,
 } from '@/lib/constants';
 
-function ChevronRight({ className }: { className?: string }) {
-  return (
-    <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-    </svg>
-  );
-}
-
 function WhatsAppIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
@@ -62,22 +54,21 @@ function Tile({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="block bg-surface-card border border-border-subtle rounded-2xl p-4 hover:border-brand/50 hover:shadow-lg hover:shadow-brand/10 transition-all"
+      className="flex flex-col items-center justify-start gap-3 bg-surface-card border border-border-subtle rounded-2xl px-3 py-5 hover:border-brand/50 hover:bg-white/[0.02] transition-all"
     >
-      <div className="flex items-start justify-between mb-3">
-        <div className={`w-11 h-11 rounded-2xl flex items-center justify-center text-white shadow-lg ${iconWrapClass}`}>
-          {icon}
-        </div>
-        <ChevronRight className="w-4 h-4 text-gray-500 shrink-0 mt-1" />
+      <div
+        className={`w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-lg ${iconWrapClass}`}
+      >
+        {icon}
       </div>
-      <p className="text-sm font-semibold text-white leading-snug">{label}</p>
+      <p className="text-sm font-medium text-white text-center leading-tight">{label}</p>
     </a>
   );
 }
 
 export function ActionTiles({ dict, locale }: { dict: LandingTranslations; locale: string }) {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 max-w-3xl mx-auto">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 max-w-md md:max-w-2xl mx-auto">
       <Tile
         icon={<WhatsAppIcon />}
         iconWrapClass="bg-[#25D366]"
