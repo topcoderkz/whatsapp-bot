@@ -23,12 +23,8 @@ export const kk: LandingTranslations = {
     tiles: {
       whatsapp: 'WhatsApp-қа жазу',
       instagram: 'Instagram-ға жазу',
-      download_app: 'Қолданбаны жүктеп алу',
-    },
-    download_sheet: {
-      title: 'Қолданбаны жүктеп алу',
-      subtitle: 'Платформаны таңдаңыз',
-      close: 'Жабу',
+      ios: 'App Store-дан жүктеу',
+      android: 'Android-қа жүктеу',
     },
   },
   branches: {

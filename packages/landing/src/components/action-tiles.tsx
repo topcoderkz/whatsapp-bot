@@ -1,6 +1,3 @@
-'use client';
-
-import { useEffect, useState } from 'react';
 import type { LandingTranslations } from '@/i18n/types';
 import {
   APP_STORE_URL,
@@ -33,14 +30,6 @@ function InstagramIcon() {
   );
 }
 
-function DownloadIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} className="w-6 h-6">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v13m0 0l-5-5m5 5l5-5M5 21h14" />
-    </svg>
-  );
-}
-
 function AppStoreIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="currentColor" className="w-6 h-6">
@@ -61,17 +50,20 @@ function Tile({
   icon,
   iconWrapClass,
   label,
-  onClick,
   href,
 }: {
   icon: React.ReactNode;
   iconWrapClass: string;
   label: string;
-  onClick?: () => void;
-  href?: string;
+  href: string;
 }) {
-  const inner = (
-    <>
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block bg-surface-card border border-border-subtle rounded-2xl p-4 hover:border-brand/50 hover:shadow-lg hover:shadow-brand/10 transition-all"
+    >
       <div className="flex items-start justify-between mb-3">
         <div className={`w-11 h-11 rounded-2xl flex items-center justify-center text-white shadow-lg ${iconWrapClass}`}>
           {icon}
@@ -79,129 +71,37 @@ function Tile({
         <ChevronRight className="w-4 h-4 text-gray-500 shrink-0 mt-1" />
       </div>
       <p className="text-sm font-semibold text-white leading-snug">{label}</p>
-    </>
-  );
-
-  const className =
-    'block text-left bg-surface-card border border-border-subtle rounded-2xl p-4 hover:border-brand/50 hover:shadow-lg hover:shadow-brand/10 transition-all';
-
-  if (href) {
-    return (
-      <a href={href} target="_blank" rel="noopener noreferrer" className={className}>
-        {inner}
-      </a>
-    );
-  }
-  return (
-    <button type="button" onClick={onClick} className={`${className} w-full`}>
-      {inner}
-    </button>
-  );
-}
-
-function DownloadSheet({
-  dict,
-  onClose,
-}: {
-  dict: LandingTranslations;
-  onClose: () => void;
-}) {
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
-    document.addEventListener('keydown', onKey);
-    const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = 'hidden';
-    return () => {
-      document.removeEventListener('keydown', onKey);
-      document.body.style.overflow = prevOverflow;
-    };
-  }, [onClose]);
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-      aria-label={dict.hero.download_sheet.title}
-    >
-      <div
-        onClick={(e) => e.stopPropagation()}
-        className="w-full sm:max-w-sm bg-surface-card border-t sm:border border-border-subtle sm:rounded-2xl rounded-t-2xl p-6 pb-8 sm:pb-6"
-      >
-        <div className="flex items-start justify-between mb-5">
-          <div>
-            <h3 className="text-lg font-bold text-white">{dict.hero.download_sheet.title}</h3>
-            <p className="text-sm text-gray-400 mt-1">{dict.hero.download_sheet.subtitle}</p>
-          </div>
-          <button
-            onClick={onClose}
-            aria-label={dict.hero.download_sheet.close}
-            className="p-1.5 -mr-1.5 -mt-1.5 text-gray-400 hover:text-white transition-colors"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
-        </div>
-
-        <div className="flex flex-col gap-3">
-          <a
-            href={APP_STORE_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-3 bg-white/10 border border-white/20 hover:bg-white/15 hover:border-white/30 transition-all rounded-xl px-4 py-3"
-          >
-            <AppStoreIcon />
-            <div className="text-left">
-              <p className="text-[10px] text-gray-400 leading-tight">Download on the</p>
-              <p className="text-sm font-semibold text-white leading-tight">App Store</p>
-            </div>
-          </a>
-          <a
-            href={RUSTORE_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-3 bg-white/10 border border-white/20 hover:bg-white/15 hover:border-white/30 transition-all rounded-xl px-4 py-3"
-          >
-            <AndroidIcon />
-            <div className="text-left">
-              <p className="text-[10px] text-gray-400 leading-tight">Get it on</p>
-              <p className="text-sm font-semibold text-white leading-tight">Android</p>
-            </div>
-          </a>
-        </div>
-      </div>
-    </div>
+    </a>
   );
 }
 
 export function ActionTiles({ dict, locale }: { dict: LandingTranslations; locale: string }) {
-  const [downloadOpen, setDownloadOpen] = useState(false);
-
   return (
-    <>
-      <div className="grid grid-cols-3 gap-3 sm:gap-4 max-w-2xl mx-auto">
-        <Tile
-          icon={<WhatsAppIcon />}
-          iconWrapClass="bg-[#25D366]"
-          label={dict.hero.tiles.whatsapp}
-          href={getWhatsAppUrl(locale)}
-        />
-        <Tile
-          icon={<InstagramIcon />}
-          iconWrapClass="bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF]"
-          label={dict.hero.tiles.instagram}
-          href={INSTAGRAM_URL}
-        />
-        <Tile
-          icon={<DownloadIcon />}
-          iconWrapClass="bg-brand"
-          label={dict.hero.tiles.download_app}
-          onClick={() => setDownloadOpen(true)}
-        />
-      </div>
-      {downloadOpen && <DownloadSheet dict={dict} onClose={() => setDownloadOpen(false)} />}
-    </>
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 max-w-3xl mx-auto">
+      <Tile
+        icon={<WhatsAppIcon />}
+        iconWrapClass="bg-[#25D366]"
+        label={dict.hero.tiles.whatsapp}
+        href={getWhatsAppUrl(locale)}
+      />
+      <Tile
+        icon={<InstagramIcon />}
+        iconWrapClass="bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF]"
+        label={dict.hero.tiles.instagram}
+        href={INSTAGRAM_URL}
+      />
+      <Tile
+        icon={<AppStoreIcon />}
+        iconWrapClass="bg-black border border-white/15"
+        label={dict.hero.tiles.ios}
+        href={APP_STORE_URL}
+      />
+      <Tile
+        icon={<AndroidIcon />}
+        iconWrapClass="bg-brand"
+        label={dict.hero.tiles.android}
+        href={RUSTORE_URL}
+      />
+    </div>
   );
 }

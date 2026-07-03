@@ -20,12 +20,8 @@ export interface LandingTranslations {
     tiles: {
       whatsapp: string;
       instagram: string;
-      download_app: string;
-    };
-    download_sheet: {
-      title: string;
-      subtitle: string;
-      close: string;
+      ios: string;
+      android: string;
     };
   };
   branches: {

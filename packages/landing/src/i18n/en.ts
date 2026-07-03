@@ -23,12 +23,8 @@ export const en: LandingTranslations = {
     tiles: {
       whatsapp: 'Chat on WhatsApp',
       instagram: 'Message on Instagram',
-      download_app: 'Download the app',
-    },
-    download_sheet: {
-      title: 'Download the app',
-      subtitle: 'Choose your platform',
-      close: 'Close',
+      ios: 'Download on App Store',
+      android: 'Download for Android',
     },
   },
   branches: {
