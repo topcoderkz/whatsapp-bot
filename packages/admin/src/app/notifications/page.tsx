@@ -21,10 +21,12 @@ export default async function NotificationsPage() {
     },
   });
 
-  // Aggregate lead_followup outcomes by branch — the question we care about
+  // Aggregate lead-notification outcomes by branch — the question we care about.
+  // We filter by leadId (not template name) so the summary keeps working even
+  // as the outbound template changes over time.
   const summary: Record<string, Record<string, number>> = {};
   for (const log of logs) {
-    if (log.templateName !== 'lead_followup') continue;
+    if (log.leadId == null) continue;
     const branchName = log.lead?.branch?.name ?? '— (no branch)';
     summary[branchName] ||= {};
     summary[branchName][log.status] = (summary[branchName][log.status] || 0) + 1;
@@ -40,13 +42,12 @@ export default async function NotificationsPage() {
     <AdminLayout>
       <h1 className="text-2xl font-bold text-gray-900 mb-2">Уведомления</h1>
       <p className="text-sm text-gray-500 mb-6">
-        История отправок шаблонов WhatsApp (lead_followup, booking_notification, broadcast и т.д.).
-        Сверху — сводка по доставке lead_followup менеджерам по филиалам.
+        История отправок шаблонов WhatsApp. Сверху — сводка по доставке уведомлений о лидах менеджерам по филиалам.
       </p>
 
-      {/* Per-branch summary for lead_followup */}
+      {/* Per-branch summary for lead notifications */}
       <h2 className="text-lg font-semibold text-gray-900 mb-3">
-        Доставка lead_followup по филиалам ({totalLeadFollowup} из последних 300)
+        Уведомления о лидах по филиалам ({totalLeadFollowup} из последних 300)
       </h2>
       <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto mb-8">
         <table className="w-full min-w-[700px]">
@@ -62,7 +63,7 @@ export default async function NotificationsPage() {
           </thead>
           <tbody>
             {branchNames.length === 0 ? (
-              <tr><td colSpan={6} className="text-center py-6 text-sm text-gray-500">Нет отправок lead_followup в окне.</td></tr>
+              <tr><td colSpan={6} className="text-center py-6 text-sm text-gray-500">Нет уведомлений о лидах в окне.</td></tr>
             ) : branchNames.map((name) => (
               <tr key={name} className="border-b border-gray-100 last:border-0">
                 <td className="px-4 py-3 text-sm font-medium text-gray-900">{name}</td>

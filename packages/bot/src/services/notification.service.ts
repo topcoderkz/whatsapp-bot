@@ -103,18 +103,24 @@ export const notificationService = {
       throw new Error(`No manager phone for branch ${branch.name}`);
     }
 
+    // Reuse the pre-approved Utility template booking_notification instead of the
+    // Marketing-category lead_followup. Meta's own classifier refused to reclassify
+    // lead_followup to Utility (deemed the content promotional), and the ongoing
+    // Marketing-quota failures were dragging the sender's quality rating down.
+    // {{3}} carries a descriptor so managers can still distinguish leads from
+    // confirmed bookings at a glance.
     const log = await (prisma as any).notificationLog.create({
       data: {
         leadId: lead.id,
         recipientPhone: branch.managerPhone,
-        templateName: config.templates.leadFollowup,
+        templateName: config.templates.bookingNotification,
         status: 'PENDING',
       },
     });
 
-    // Template body parameters (2 vars):
-    // {{1}} = branch name, {{2}} = client phone
-    const params = [branch.name, lead.phone];
+    // Template body parameters (3 vars, matching booking_notification's shape):
+    // {{1}} = branch name, {{2}} = client phone, {{3}} = short description
+    const params = [branch.name, lead.phone, 'Обращение в чате, не завершено'];
 
     let lastError: Error | null = null;
 
@@ -122,7 +128,7 @@ export const notificationService = {
       try {
         const result = await whatsappClient.sendTemplate(
           branch.managerPhone,
-          config.templates.leadFollowup,
+          config.templates.bookingNotification,
           params
         );
 
