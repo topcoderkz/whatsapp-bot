@@ -1,4 +1,4 @@
-import { whatsappClient } from '../whatsapp/client';
+import { whatsappClient, WhatsAppApiError } from '../whatsapp/client';
 import { prisma } from '../db/client';
 import { config } from '../config';
 import { sanitizeBroadcastParam } from './broadcast-sanitize';
@@ -74,13 +74,18 @@ export const notificationService = {
       } catch (err) {
         lastError = err as Error;
         console.error(`[Notification] Attempt ${attempt + 1} failed:`, (err as Error).message);
+        // Meta quota/policy/template errors won't clear on retry — stop hammering.
+        if (err instanceof WhatsAppApiError && err.isPermanent) {
+          console.warn(`[Notification] Permanent WhatsApp error (${err.code}), skipping remaining retries`);
+          break;
+        }
         if (attempt < MAX_RETRIES) {
           await sleep(RETRY_DELAY_MS);
         }
       }
     }
 
-    // All retries exhausted
+    // All retries exhausted (or skipped for a permanent error)
     await (prisma as any).notificationLog.update({
       where: { id: log.id },
       data: {
@@ -89,7 +94,7 @@ export const notificationService = {
       },
     });
 
-    console.error(`[Notification] FAILED to notify manager for booking ${booking.id} after ${MAX_RETRIES + 1} attempts`);
+    console.error(`[Notification] FAILED to notify manager for booking ${booking.id}`);
   },
 
   /**
@@ -146,6 +151,10 @@ export const notificationService = {
       } catch (err) {
         lastError = err as Error;
         console.error(`[Notification] Lead followup attempt ${attempt + 1} failed:`, (err as Error).message);
+        if (err instanceof WhatsAppApiError && err.isPermanent) {
+          console.warn(`[Notification] Permanent WhatsApp error (${err.code}), skipping remaining retries`);
+          break;
+        }
         if (attempt < MAX_RETRIES) {
           await sleep(RETRY_DELAY_MS);
         }
