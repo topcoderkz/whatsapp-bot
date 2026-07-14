@@ -324,21 +324,59 @@ export async function updateBroadcast(id: number, formData: FormData) {
   revalidatePath('/broadcasts');
 }
 
-export async function sendBroadcast(broadcastId: number) {
+function botUrl(path: string) {
+  const base = process.env.BOT_INTERNAL_URL || `http://localhost:${process.env.BOT_PORT || 3000}`;
+  return `${base}${path}`;
+}
+
+async function callBot(path: string, body?: any) {
   try {
-    const res = await fetch(`${process.env.BOT_INTERNAL_URL || `http://localhost:${process.env.BOT_PORT || 3000}`}/admin/broadcasts/send`, {
+    const res = await fetch(botUrl(path), {
       method: 'POST',
       headers: {
         Authorization: `Bearer admin-internal`,
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ broadcastId }),
+      ...(body !== undefined ? { body: JSON.stringify(body) } : {}),
     });
-    if (!res.ok) throw new Error('Bot API error');
-    return await res.json();
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      return { error: json.error || 'Bot API error' };
+    }
+    return json;
   } catch {
     return { error: 'Бот не запущен. Запустите бот и попробуйте снова.' };
   }
+}
+
+// Send-test snapshots only the first 20 matching clients — for smoke tests
+// before committing the full campaign.
+export async function startTestBatch(broadcastId: number) {
+  const result = await callBot('/admin/broadcasts/send', { broadcastId, scope: 'test' });
+  revalidatePath('/broadcasts');
+  revalidatePath(`/broadcasts/${broadcastId}`);
+  return result;
+}
+
+// Full campaign — every client matching the audience filter.
+export async function startFullCampaign(broadcastId: number) {
+  const result = await callBot('/admin/broadcasts/send', { broadcastId, scope: 'all' });
+  revalidatePath('/broadcasts');
+  revalidatePath(`/broadcasts/${broadcastId}`);
+  return result;
+}
+
+export async function retryFailedRecipients(broadcastId: number) {
+  const result = await callBot(`/admin/broadcasts/${broadcastId}/retry`);
+  revalidatePath(`/broadcasts/${broadcastId}`);
+  return result;
+}
+
+export async function cancelBroadcast(broadcastId: number) {
+  const result = await callBot(`/admin/broadcasts/${broadcastId}/cancel`);
+  revalidatePath('/broadcasts');
+  revalidatePath(`/broadcasts/${broadcastId}`);
+  return result;
 }
 
 export async function deleteBroadcast(broadcastId: number) {
@@ -347,15 +385,28 @@ export async function deleteBroadcast(broadcastId: number) {
     throw new Error('Рассылка не найдена');
   }
 
-  // Delete related notification logs first (foreign key constraint)
+  // Delete related notification logs first (foreign key constraint).
+  // broadcast_recipients has ON DELETE CASCADE so it goes with the broadcast.
   await prisma.notificationLog.deleteMany({
     where: { broadcastId },
   });
 
-  // Delete the broadcast
   await prisma.broadcastMessage.delete({
     where: { id: broadcastId },
   });
 
   revalidatePath('/broadcasts');
+}
+
+// Preview: how many recipients would this filter match right now? Used by the
+// compose form to show live count before Send.
+export async function previewBroadcastAudience(
+  targetFilter: 'ALL' | 'SUBSCRIBED' | 'BRANCH',
+  targetBranchId: number | null
+): Promise<{ count: number }> {
+  const where: any = { isActive: true };
+  if (targetFilter === 'SUBSCRIBED') where.isSubscribed = true;
+  if (targetFilter === 'BRANCH' && targetBranchId) where.branchId = targetBranchId;
+  const count = await prisma.client.count({ where });
+  return { count };
 }

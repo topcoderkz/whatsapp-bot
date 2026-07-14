@@ -14,14 +14,23 @@ interface Broadcast {
   failedCount: number;
   sentAt: Date | null;
   createdAt: Date;
+  stats?: Record<string, number>;
 }
 
 const statusLabels: Record<string, string> = {
   DRAFT: 'Черновик',
-  SENDING: 'Отправляется',
-  SENT: 'Отправлено',
+  SENDING: 'В процессе',
+  SENT: 'Завершено',
   FAILED: 'Ошибка',
 };
+
+function progressText(b: Broadcast): string {
+  const s = b.stats || {};
+  const total = Object.values(s).reduce((a, c) => a + c, 0);
+  if (total === 0) return '—';
+  const sent = (s.SENT || 0) + (s.DELIVERED || 0) + (s.READ || 0);
+  return `${sent.toLocaleString('ru-RU')} / ${total.toLocaleString('ru-RU')}`;
+}
 
 const statusColors: Record<string, string> = {
   DRAFT: 'bg-gray-100 text-gray-600',
@@ -81,9 +90,7 @@ export function BroadcastsTable({ broadcasts }: { broadcasts: Broadcast[] }) {
                     {statusLabels[b.status]}
                   </span>
                 </td>
-                <td className="px-4 py-3 text-sm text-gray-500">
-                  {b.sentCount > 0 ? `${b.sentCount} / ${b.sentCount + b.failedCount}` : '—'}
-                </td>
+                <td className="px-4 py-3 text-sm text-gray-500">{progressText(b)}</td>
                 <td className="px-4 py-3 text-sm text-gray-400">
                   {b.sentAt ? new Date(b.sentAt).toLocaleDateString('ru-RU') : new Date(b.createdAt).toLocaleDateString('ru-RU')}
                 </td>

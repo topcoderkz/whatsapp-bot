@@ -126,6 +126,31 @@ async function handleStatusUpdate(status: StatusUpdate) {
       where: { id: log.id },
       data: updateData,
     });
+
+    // Mirror the delivery/read state onto the broadcast_recipients row so the
+    // campaign progress bar in the admin panel reflects reality (not just what
+    // the API returned at send time).
+    if (log.broadcastId) {
+      const recipientUpdate: any = {};
+      if (statusValue === 'delivered') {
+        recipientUpdate.status = 'DELIVERED';
+        recipientUpdate.deliveredAt = ts;
+      } else if (statusValue === 'read') {
+        recipientUpdate.status = 'READ';
+        recipientUpdate.readAt = ts;
+      } else if (statusValue === 'failed') {
+        // Post-send failure (e.g. carrier reject after Meta accepted) — treat
+        // as retriable unless it looks permanent.
+        recipientUpdate.status = 'FAILED_RETRY';
+        recipientUpdate.errorMessage = status.errors?.[0]?.title || 'Delivery failed';
+      }
+      if (Object.keys(recipientUpdate).length > 0) {
+        await (prisma as any).broadcastRecipient.updateMany({
+          where: { waMessageId: id },
+          data: recipientUpdate,
+        });
+      }
+    }
   } catch (err) {
     console.error('[Webhook] Status update error:', err);
   }

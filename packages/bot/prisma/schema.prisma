@@ -244,8 +244,48 @@ model BroadcastMessage {
   sentAt            DateTime?       @map("sent_at")
 
   notifications NotificationLog[]
+  recipients    BroadcastRecipient[]
 
   @@map("broadcast_messages")
+}
+
+// One row per intended recipient of a broadcast campaign. Snapshotted from the
+// clients table at Send time so the campaign is deterministic — later client
+// additions/removals don't change who's on the list. Status transitions:
+//   PENDING → SENT → DELIVERED → READ            (happy path via webhook)
+//   PENDING → FAILED_RETRY                        (transient — batch runner retries next day)
+//   PENDING → FAILED_PERMANENT                    (Meta permanent error — never retry)
+//   PENDING → SKIPPED                             (admin canceled the campaign)
+model BroadcastRecipient {
+  id            Int                       @id @default(autoincrement())
+  broadcastId   Int                       @map("broadcast_id")
+  broadcast     BroadcastMessage          @relation(fields: [broadcastId], references: [id], onDelete: Cascade)
+  phone         String
+  status        BroadcastRecipientStatus  @default(PENDING)
+  attempts      Int                       @default(0)
+  lastAttemptAt DateTime?                 @map("last_attempt_at")
+  errorCode     Int?                      @map("error_code")
+  errorMessage  String?                   @map("error_message")
+  waMessageId   String?                   @map("wa_message_id")
+  sentAt        DateTime?                 @map("sent_at")
+  deliveredAt   DateTime?                 @map("delivered_at")
+  readAt        DateTime?                 @map("read_at")
+  createdAt     DateTime                  @default(now()) @map("created_at")
+
+  @@unique([broadcastId, phone])
+  @@index([broadcastId, status])
+  @@index([waMessageId])
+  @@map("broadcast_recipients")
+}
+
+enum BroadcastRecipientStatus {
+  PENDING
+  SENT
+  DELIVERED
+  READ
+  FAILED_RETRY
+  FAILED_PERMANENT
+  SKIPPED
 }
 
 model PriceImage {

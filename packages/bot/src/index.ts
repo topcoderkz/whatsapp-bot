@@ -5,6 +5,7 @@ import { adminApiRouter } from './routes/admin-api';
 import { startBookingCleanup } from './jobs/booking-cleanup';
 import { startPromotionExpiry } from './jobs/promotion-expiry';
 import { startLeadFollowup } from './jobs/lead-followup';
+import { startBroadcastRunner } from './jobs/broadcast-runner';
 
 const app = express();
 
@@ -33,3 +34,4 @@ app.listen(config.port, () => {
 startBookingCleanup();
 startPromotionExpiry();
 startLeadFollowup();
+startBroadcastRunner();
