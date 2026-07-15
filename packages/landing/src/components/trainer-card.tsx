@@ -14,7 +14,7 @@ export function TrainerCard({ trainer, dict, locale }: { trainer: Trainer; dict:
   return (
     <Link
       href={`/${locale}/trainers/${trainer.id}`}
-      className="block bg-surface-card border border-border-subtle rounded-2xl overflow-hidden hover:border-brand/50 hover:shadow-lg hover:shadow-brand/10 transition-all group"
+      className="h-full flex flex-col bg-surface-card border border-border-subtle rounded-2xl overflow-hidden hover:border-brand/50 hover:shadow-lg hover:shadow-brand/10 transition-all group"
     >
       {/* Photo area */}
       <div className="relative aspect-[3/4] bg-gradient-to-br from-surface-2 to-surface-card flex items-center justify-center overflow-hidden">
@@ -35,7 +35,7 @@ export function TrainerCard({ trainer, dict, locale }: { trainer: Trainer; dict:
         <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-surface-card to-transparent" />
       </div>
 
-      <div className="p-5">
+      <div className="p-5 flex flex-col flex-1">
         <h3 className="text-lg font-bold text-white group-hover:text-brand transition-colors">{trainer.name}</h3>
         <p className="text-sm text-gray-500 mt-0.5">{trainer.branch.name}</p>
 

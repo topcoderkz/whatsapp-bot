@@ -25,7 +25,7 @@ export function BranchCard({ branch, dict, locale }: { branch: Branch; dict: Lan
   const heroImage = branch.photos[0]?.imageUrl ?? BRANCH_FALLBACK_IMAGES[branch.address];
 
   return (
-    <div className="relative bg-surface-card border border-border-subtle rounded-2xl overflow-hidden hover:border-brand/50 hover:shadow-lg hover:shadow-brand/10 transition-all group">
+    <div className="relative h-full flex flex-col bg-surface-card border border-border-subtle rounded-2xl overflow-hidden hover:border-brand/50 hover:shadow-lg hover:shadow-brand/10 transition-all group">
       {/* Stretched link — covers the whole card. Phone + 2GIS keep their own
           clicks via z-20 below. */}
       <Link
@@ -52,7 +52,7 @@ export function BranchCard({ branch, dict, locale }: { branch: Branch; dict: Lan
         <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/50 to-transparent" />
       </div>
 
-      <div className="p-6 -mt-8 relative">
+      <div className="p-6 -mt-8 relative flex flex-col flex-1">
         <div className="flex items-start gap-4">
           <div className="shrink-0 w-12 h-12 bg-brand rounded-xl flex items-center justify-center text-white text-xl shadow-lg">
             📍
@@ -81,7 +81,7 @@ export function BranchCard({ branch, dict, locale }: { branch: Branch; dict: Lan
           </div>
         </div>
 
-        <div className="mt-5 flex items-center justify-between gap-3">
+        <div className="mt-auto pt-5 flex items-center justify-between gap-3">
           <a
             href={mapUrl}
             target="_blank"

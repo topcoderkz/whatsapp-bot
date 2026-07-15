@@ -27,8 +27,8 @@ export function PromoCard({
   );
 
   return (
-    <div className="bg-surface-card border border-border-subtle rounded-2xl overflow-hidden hover:border-brand/50 transition-colors">
-      <div className="h-48 bg-gradient-to-br from-surface-2 to-surface-card overflow-hidden flex items-center justify-center">
+    <div className="h-full flex flex-col bg-surface-card border border-border-subtle rounded-2xl overflow-hidden hover:border-brand/50 transition-colors">
+      <div className="h-48 shrink-0 bg-gradient-to-br from-surface-2 to-surface-card overflow-hidden flex items-center justify-center">
         {promo.imageUrl ? (
           <img
             src={promo.imageUrl}
@@ -40,7 +40,7 @@ export function PromoCard({
         )}
       </div>
 
-      <div className="p-6">
+      <div className="p-6 flex flex-col flex-1">
         <h3 className="text-lg font-bold text-white">{promo.title}</h3>
         <p className="mt-2 text-sm text-gray-400">{promo.description}</p>
 
@@ -50,7 +50,7 @@ export function PromoCard({
           </div>
         )}
 
-        <div className="mt-4 flex flex-wrap items-center gap-2">
+        <div className="mt-auto pt-4 flex flex-wrap items-center gap-2">
           <span className="inline-flex items-center gap-1.5 bg-brand/10 text-brand text-xs font-bold px-3 py-1.5 rounded-full">
             {dict.promotions.valid_until} {endDate}
           </span>
