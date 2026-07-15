@@ -19,6 +19,17 @@ const BATCH_SIZE = 50;
 // Cadence of the recurring tick.
 const RUNNER_INTERVAL_MS = 60 * 1000;
 
+// A FAILED_RETRY recipient waits this long before we try again. Meta's
+// ecosystem-engagement filter (131049) is per-user rolling — retrying the
+// same day just re-fails and burns quality rating. A day is enough for the
+// filter to reset in most cases.
+const RETRY_COOLDOWN_MS = 24 * 60 * 60 * 1000;
+
+// After this many attempts, a recipient is written off as FAILED_PERMANENT
+// so the campaign can eventually close. Legitimate transient errors clear
+// well before 3 attempts.
+const MAX_ATTEMPTS_PER_RECIPIENT = 3;
+
 // Guard against overlapping runs — one tick can outlast the interval if the
 // batch stalls on network. Skip until the previous run finishes.
 let running = false;
@@ -84,10 +95,14 @@ async function sendToRecipient(recipient: any, broadcast: any): Promise<boolean>
     const isPermanent = err instanceof WhatsAppApiError && err.isPermanent;
     const code = err instanceof WhatsAppApiError ? err.code : null;
     const message = (err as Error).message ?? 'Unknown error';
+    const nextAttempts = (recipient.attempts || 0) + 1;
+    // Give up early if this attempt just hit the cap — no point holding the
+    // row in FAILED_RETRY forever waiting for a retry that won't happen.
+    const exhausted = nextAttempts >= MAX_ATTEMPTS_PER_RECIPIENT;
     await (jobPrisma as any).broadcastRecipient.update({
       where: { id: recipient.id },
       data: {
-        status: isPermanent ? 'FAILED_PERMANENT' : 'FAILED_RETRY',
+        status: isPermanent || exhausted ? 'FAILED_PERMANENT' : 'FAILED_RETRY',
         attempts: { increment: 1 },
         lastAttemptAt: attemptStart,
         errorCode: code,
@@ -156,6 +171,17 @@ export async function runOnce(): Promise<void> {
       return;
     }
 
+    // Sweep 1: exhausted retries → FAILED_PERMANENT so campaigns can close.
+    // Anything that's been attempted MAX_ATTEMPTS times and still isn't
+    // delivered is unrecoverable — usually a chronically-blocked recipient.
+    await (jobPrisma as any).broadcastRecipient.updateMany({
+      where: {
+        status: 'FAILED_RETRY',
+        attempts: { gte: MAX_ATTEMPTS_PER_RECIPIENT },
+      },
+      data: { status: 'FAILED_PERMANENT' },
+    });
+
     const activeBroadcasts = await (jobPrisma as any).broadcastMessage.findMany({
       where: { status: 'SENDING' },
       orderBy: { createdAt: 'asc' },
@@ -163,15 +189,26 @@ export async function runOnce(): Promise<void> {
     if (activeBroadcasts.length === 0) return;
 
     let budgetLeft = remainingBudget;
+    const retryCutoff = new Date(Date.now() - RETRY_COOLDOWN_MS);
 
     for (const broadcast of activeBroadcasts) {
       if (budgetLeft <= 0) break;
 
       const take = Math.min(BATCH_SIZE, budgetLeft);
+      // Pickup query: PENDING is always eligible. FAILED_RETRY only when it
+      // hasn't been tried in the last 24h — otherwise we'd loop through the
+      // same failing recipients every minute, worsening our quality rating.
       const recipients = await (jobPrisma as any).broadcastRecipient.findMany({
         where: {
           broadcastId: broadcast.id,
-          status: { in: ['PENDING', 'FAILED_RETRY'] },
+          OR: [
+            { status: 'PENDING' },
+            {
+              status: 'FAILED_RETRY',
+              attempts: { lt: MAX_ATTEMPTS_PER_RECIPIENT },
+              OR: [{ lastAttemptAt: null }, { lastAttemptAt: { lt: retryCutoff } }],
+            },
+          ],
         },
         orderBy: { id: 'asc' },
         take,
