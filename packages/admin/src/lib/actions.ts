@@ -236,6 +236,16 @@ export async function toggleClient(id: number, isActive: boolean) {
   revalidatePath('/clients');
 }
 
+// Nuke every client whose branchId is NULL. Used to purge the legacy
+// branch-less CSV import once real per-branch data has been loaded, so
+// broadcasts targeting "клиенты филиала X" aren't diluted by duplicate
+// no-branch rows.
+export async function deleteClientsWithoutBranch() {
+  const result = await prisma.client.deleteMany({ where: { branchId: null } });
+  revalidatePath('/clients');
+  return { deleted: result.count };
+}
+
 // Normalize a raw phone string (from the CSV) to +7XXXXXXXXXX. Returns null
 // when the input doesn't look like a KZ mobile number.
 function normalizeKzPhone(raw: string): string | null {

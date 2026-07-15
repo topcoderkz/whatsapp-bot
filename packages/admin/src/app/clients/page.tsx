@@ -1,6 +1,7 @@
 import { AdminLayout } from '@/components/admin-layout';
 import { prisma } from '@/lib/db';
 import { createClient, toggleClient } from '@/lib/actions';
+import { DeleteBranchlessButton } from './delete-branchless-button';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
@@ -29,6 +30,7 @@ export default async function ClientsPage({ searchParams }: { searchParams: Prom
 
   const branches = await prisma.branch.findMany({ where: { isActive: true }, orderBy: { name: 'asc' } });
   const totalCount = await prisma.client.count();
+  const branchlessCount = await prisma.client.count({ where: { branchId: null } });
 
   return (
     <AdminLayout>
@@ -38,6 +40,9 @@ export default async function ClientsPage({ searchParams }: { searchParams: Prom
           📥 Импорт CSV
         </Link>
       </div>
+
+      {/* Cleanup helper — visible only while branchless rows exist */}
+      <DeleteBranchlessButton count={branchlessCount} />
 
       {/* Search and filter */}
       <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6">
