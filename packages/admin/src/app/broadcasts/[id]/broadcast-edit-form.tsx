@@ -43,6 +43,37 @@ interface Stats {
   counts: Record<string, number>;
 }
 
+interface Recipient {
+  id: number;
+  phone: string;
+  name: string | null;
+  status: string;
+  sentAt: string | null;
+  deliveredAt: string | null;
+  readAt: string | null;
+  errorMessage: string | null;
+}
+
+const recipientStatusLabels: Record<string, string> = {
+  PENDING: 'В очереди',
+  SENT: 'Отправлено',
+  DELIVERED: 'Доставлено',
+  READ: 'Прочитано',
+  FAILED_RETRY: 'Повтор',
+  FAILED_PERMANENT: 'Отклонено',
+  SKIPPED: 'Пропущено',
+};
+
+const recipientStatusColors: Record<string, string> = {
+  PENDING: 'bg-gray-100 text-gray-600',
+  SENT: 'bg-blue-100 text-blue-700',
+  DELIVERED: 'bg-cyan-100 text-cyan-700',
+  READ: 'bg-green-100 text-green-700',
+  FAILED_RETRY: 'bg-yellow-100 text-yellow-700',
+  FAILED_PERMANENT: 'bg-red-100 text-red-700',
+  SKIPPED: 'bg-gray-100 text-gray-500',
+};
+
 const statusLabels: Record<string, string> = {
   DRAFT: 'Черновик',
   SENDING: 'В процессе',
@@ -118,11 +149,17 @@ export function BroadcastEditForm({
   branches,
   stats,
   audienceCount,
+  recipients,
+  truncated,
+  limit,
 }: {
   broadcast: BroadcastData;
   branches: Branch[];
   stats: Stats;
   audienceCount: number;
+  recipients: Recipient[];
+  truncated: boolean;
+  limit: number;
 }) {
   const router = useRouter();
   const isDraft = broadcast.status === 'DRAFT';
@@ -210,6 +247,64 @@ export function BroadcastEditForm({
 
       {/* Campaign progress — only meaningful once the snapshot exists */}
       {stats.total > 0 && <ProgressCard stats={stats} />}
+
+      {/* Per-recipient list. Hidden for drafts (no snapshot yet). */}
+      {recipients.length > 0 && (
+        <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+          <div className="px-6 py-4 border-b border-gray-100 flex flex-wrap items-baseline justify-between gap-3">
+            <p className="text-sm font-medium text-gray-700">
+              Получатели ({recipients.length.toLocaleString('ru-RU')}
+              {truncated ? ` из ${stats.total.toLocaleString('ru-RU')}` : ''})
+            </p>
+            {truncated && (
+              <p className="text-xs text-gray-500">Показаны первые {limit.toLocaleString('ru-RU')} записей</p>
+            )}
+          </div>
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[600px]">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-200">
+                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-500">Телефон</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-500">Имя</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-500">Статус</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-500">Отправлено</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-500">Прочитано</th>
+                  <th className="text-left px-4 py-3 text-xs font-medium text-gray-500">Ошибка</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recipients.map((r) => (
+                  <tr key={r.id} className="border-b border-gray-100 last:border-0">
+                    <td className="px-4 py-2 text-sm font-medium text-gray-900">{r.phone}</td>
+                    <td className="px-4 py-2 text-sm text-gray-500">{r.name || '—'}</td>
+                    <td className="px-4 py-2 text-xs">
+                      <span
+                        className={`inline-flex px-2 py-0.5 rounded-full font-medium ${
+                          recipientStatusColors[r.status] || 'bg-gray-100 text-gray-600'
+                        }`}
+                      >
+                        {recipientStatusLabels[r.status] || r.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-2 text-xs text-gray-500">
+                      {r.sentAt ? <LocalTime iso={r.sentAt} /> : '—'}
+                    </td>
+                    <td className="px-4 py-2 text-xs text-gray-500">
+                      {r.readAt ? <LocalTime iso={r.readAt} /> : '—'}
+                    </td>
+                    <td
+                      className="px-4 py-2 text-xs text-red-600 max-w-[220px] truncate"
+                      title={r.errorMessage || ''}
+                    >
+                      {r.errorMessage || ''}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* Preview always visible — recipient view */}
       <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-3">
