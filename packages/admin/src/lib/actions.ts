@@ -236,45 +236,78 @@ export async function toggleClient(id: number, isActive: boolean) {
   revalidatePath('/clients');
 }
 
-export async function importClients(clients: Array<{ phone: string; name?: string; branch?: string }>) {
-  const branches = await prisma.branch.findMany();
-  let imported = 0;
-  let skipped = 0;
-  let errors = 0;
+// Normalize a raw phone string (from the CSV) to +7XXXXXXXXXX. Returns null
+// when the input doesn't look like a KZ mobile number.
+function normalizeKzPhone(raw: string): string | null {
+  const digits = (raw || '').replace(/\D/g, '');
+  if (digits.length < 10) return null;
+  // mobifitness exports as 77xxxxxxxxx (no +). Some rows have 8xxxxxxxxx,
+  // others just 10 digits (KZ mobile). Normalize all to +7XXXXXXXXXX.
+  if (digits.length === 10) return `+7${digits}`;
+  if (digits.startsWith('8')) return `+7${digits.slice(1)}`;
+  if (digits.startsWith('7')) return `+${digits}`;
+  return `+${digits}`;
+}
 
-  for (const row of clients) {
-    if (!row.phone) { errors++; continue; }
+export async function importClients(input: {
+  branchId: number;
+  replaceExisting: boolean;
+  rows: Array<{ phone: string; name?: string }>;
+}) {
+  const { branchId, replaceExisting, rows } = input;
 
-    const phone = row.phone.replace(/\D/g, '');
-    if (phone.length < 10) { errors++; continue; }
+  const branch = await prisma.branch.findUnique({ where: { id: branchId } });
+  if (!branch) throw new Error('Филиал не найден');
 
-    const normalizedPhone = phone.startsWith('8') ? `+7${phone.slice(1)}` : phone.startsWith('7') ? `+${phone}` : `+${phone}`;
-
-    const branchMatch = row.branch ? branches.find(b =>
-      b.name.toLowerCase().includes(row.branch!.toLowerCase()) ||
-      b.slug.toLowerCase().includes(row.branch!.toLowerCase())
-    ) : null;
-
-    try {
-      const existing = await prisma.client.findUnique({ where: { phone: normalizedPhone } });
-      if (existing) { skipped++; continue; }
-
-      await prisma.client.create({
-        data: {
-          phone: normalizedPhone,
-          name: row.name || null,
-          branchId: branchMatch?.id || null,
-          source: 'CSV_IMPORT',
-        },
-      });
-      imported++;
-    } catch {
-      skipped++;
+  // Dedupe + normalize before touching the DB — the mobifitness export has
+  // occasional dupes and rows with the same phone appearing twice.
+  const cleaned = new Map<string, { phone: string; name: string | null }>();
+  let malformed = 0;
+  for (const row of rows) {
+    const phone = normalizeKzPhone(row.phone);
+    if (!phone) {
+      malformed++;
+      continue;
+    }
+    if (!cleaned.has(phone)) {
+      cleaned.set(phone, { phone, name: (row.name || '').trim() || null });
     }
   }
 
+  let deleted = 0;
+  if (replaceExisting) {
+    // Delete only clients that belong to THIS branch. Clients without a
+    // branch, or clients tied to other branches, stay untouched — the
+    // per-branch replacement mode is explicitly scoped so a mistake with one
+    // file doesn't nuke the whole client base.
+    const result = await prisma.client.deleteMany({ where: { branchId } });
+    deleted = result.count;
+  }
+
+  // createMany + skipDuplicates handles the (phone) unique constraint if a
+  // phone already exists on another branch. Those rows silently fall through
+  // — the admin will see them as "skipped" in the summary.
+  const created = await prisma.client.createMany({
+    data: Array.from(cleaned.values()).map((c) => ({
+      phone: c.phone,
+      name: c.name,
+      branchId,
+      source: 'CSV_IMPORT' as const,
+    })),
+    skipDuplicates: true,
+  });
+
+  const imported = created.count;
+  const skipped = cleaned.size - imported;
+
   revalidatePath('/clients');
-  return { imported, skipped, errors };
+  return {
+    imported,
+    skipped,
+    errors: malformed,
+    deleted,
+    branchName: branch.name,
+  };
 }
 
 // ─── Broadcasts ───
