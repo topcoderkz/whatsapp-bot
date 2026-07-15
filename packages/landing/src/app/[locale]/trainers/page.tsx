@@ -2,6 +2,7 @@ import { getDictionary, isValidLocale } from '@/i18n';
 import { getBranches, getTrainers } from '@/lib/data';
 import { TrainerCard } from '@/components/trainer-card';
 import { ContactCta } from '@/components/contact-cta';
+import { HorizontalCarousel } from '@/components/horizontal-carousel';
 
 export const dynamic = 'force-dynamic';
 
@@ -57,11 +58,14 @@ export default async function TrainersIndexPage({
                     <span className="text-brand">📍</span>
                     {branch.name}
                   </h2>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                  <HorizontalCarousel
+                    dotAriaLabel={branch.name}
+                    itemClassName="w-[70%] sm:w-[45%] md:w-[calc(33.333%-11px)] lg:w-[calc(25%-12px)]"
+                  >
                     {list.map((trainer) => (
                       <TrainerCard key={trainer.id} trainer={trainer} dict={dict} locale={validLocale} />
                     ))}
-                  </div>
+                  </HorizontalCarousel>
                 </div>
               ))}
             </div>
