@@ -120,7 +120,7 @@ export default async function TrainerPage({
                 </div>
               )}
 
-              <div className="mt-8">
+              <div className="mt-8 flex justify-center">
                 <a
                   href={trainerWa ? `https://wa.me/${trainerWa}` : getWhatsAppUrl(validLocale)}
                   target="_blank"

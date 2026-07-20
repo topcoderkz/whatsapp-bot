@@ -118,7 +118,7 @@ export default async function BranchPage({
                 </div>
               </div>
 
-              <div className="mt-8 flex flex-col sm:flex-row gap-3">
+              <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
                 <a
                   href={getWhatsAppUrl(validLocale)}
                   target="_blank"
