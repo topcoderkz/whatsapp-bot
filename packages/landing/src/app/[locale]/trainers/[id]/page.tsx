@@ -75,7 +75,12 @@ export default async function TrainerPage({
             <div className="order-1 lg:order-2">
               {carouselPhotos.length > 0 ? (
                 <div className="max-w-md mx-auto">
-                  <PhotoCarousel photos={carouselPhotos} branchName={t.name} />
+                  <PhotoCarousel
+                    photos={carouselPhotos}
+                    branchName={t.name}
+                    aspect="3/4"
+                    objectFit="contain"
+                  />
                 </div>
               ) : (
                 <div className="relative aspect-[3/4] max-w-md mx-auto rounded-2xl overflow-hidden border border-border-subtle bg-surface-2">

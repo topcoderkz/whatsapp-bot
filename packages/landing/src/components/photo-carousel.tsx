@@ -7,6 +7,13 @@ interface PhotoCarouselProps {
   photos: { id: number | string; imageUrl: string }[];
   branchName: string;
   fallback?: string;
+  // Tailwind aspect-ratio class body. Defaults to "4/3" (branch photos).
+  // Trainer photos are usually portrait, so trainer pages pass "3/4".
+  aspect?: string;
+  // "cover" crops to fill the frame (good for landscape branch photos where
+  // any excess is background). "contain" shows the whole image with padding
+  // — safer for portrait trainer photos of variable aspect ratios.
+  objectFit?: 'cover' | 'contain';
 }
 
 /**
@@ -16,7 +23,13 @@ interface PhotoCarouselProps {
  *    drives the dot indicator below
  *  - No modal — inline, like an Instagram post
  */
-export function PhotoCarousel({ photos, branchName, fallback }: PhotoCarouselProps) {
+export function PhotoCarousel({
+  photos,
+  branchName,
+  fallback,
+  aspect = '4/3',
+  objectFit = 'cover',
+}: PhotoCarouselProps) {
   const slides = photos.length > 0
     ? photos.map((p) => ({ key: String(p.id), src: p.imageUrl }))
     : fallback
@@ -61,13 +74,14 @@ export function PhotoCarousel({ photos, branchName, fallback }: PhotoCarouselPro
             ref={(el) => {
               itemRefs.current[i] = el;
             }}
-            className="shrink-0 w-[88%] aspect-[4/3] snap-center rounded-2xl overflow-hidden bg-surface-2"
+            className="shrink-0 w-[88%] snap-center rounded-2xl overflow-hidden bg-surface-2"
+            style={{ aspectRatio: aspect }}
           >
             <img
               src={slide.src}
               alt={branchName}
               loading={i === 0 ? 'eager' : 'lazy'}
-              className="w-full h-full object-cover"
+              className={`w-full h-full ${objectFit === 'contain' ? 'object-contain' : 'object-cover'}`}
             />
           </div>
         ))}
