@@ -8,7 +8,10 @@ export const dynamic = 'force-dynamic';
 
 export default async function TrainersPage() {
   const trainers = await prisma.trainer.findMany({
-    include: { branch: true },
+    include: {
+      branch: true,
+      photos: { orderBy: { displayOrder: 'asc' } },
+    },
     orderBy: [{ isActive: 'desc' }, { name: 'asc' }],
   });
   const branches = await prisma.branch.findMany({ where: { isActive: true }, orderBy: { name: 'asc' } });
@@ -43,7 +46,11 @@ export default async function TrainersPage() {
               <label className="block text-xs text-gray-500 mb-1">Опыт (лет)</label>
               <input name="experienceYears" type="number" placeholder="5" className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
             </div>
-            <div className="md:col-span-2">
+            <div>
+              <label className="block text-xs text-gray-500 mb-1">Телефон (WhatsApp)</label>
+              <input name="phone" type="tel" placeholder="+77XXXXXXXXX" className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+            </div>
+            <div>
               <label className="block text-xs text-gray-500 mb-1">О тренере</label>
               <input name="bio" placeholder="Краткое описание" className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
             </div>

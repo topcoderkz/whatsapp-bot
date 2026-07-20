@@ -6,6 +6,17 @@ import { getWhatsAppUrl } from '@/lib/constants';
 import { ClassCard } from '@/components/class-card';
 import { ContactCta } from '@/components/contact-cta';
 import { SectionWrapper } from '@/components/section-wrapper';
+import { PhotoCarousel } from '@/components/photo-carousel';
+
+// Turn a KZ/RU phone into a plain digit-only string suitable for wa.me.
+// "+7 705 629 2233" / "8 705 629 2233" / "77056292233" → "77056292233".
+function normalizePhone(input: string): string | null {
+  const digits = input.replace(/\D+/g, '');
+  if (!digits) return null;
+  // "8XXXXXXXXXX" (KZ/RU local) → "7XXXXXXXXXX"
+  if (digits.length === 11 && digits.startsWith('8')) return '7' + digits.slice(1);
+  return digits;
+}
 
 export const dynamic = 'force-dynamic';
 
@@ -27,6 +38,19 @@ export default async function TrainerPage({
   const t = trainer as any;
   const branch = t.branch as { id: number; name: string; slug: string };
   const groupClasses: any[] = t.groupClasses ?? [];
+  const photos: { id: number; imageUrl: string }[] = t.photos ?? [];
+
+  // If a trainer has photos, feed them to the carousel. Otherwise fall back
+  // to the single photoUrl (rendered as a one-slide carousel) or the empty
+  // avatar. This keeps existing trainers without extra photos working.
+  const carouselPhotos =
+    photos.length > 0
+      ? photos.map((p) => ({ id: p.id, imageUrl: p.imageUrl }))
+      : t.photoUrl
+        ? [{ id: 'main' as unknown as number, imageUrl: t.photoUrl }]
+        : [];
+
+  const trainerWa = t.phone ? normalizePhone(t.phone) : null;
 
   return (
     <main>
@@ -49,21 +73,19 @@ export default async function TrainerPage({
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
             {/* Photo — top on mobile, right on desktop */}
             <div className="order-1 lg:order-2">
-              <div className="relative aspect-[3/4] max-w-md mx-auto rounded-2xl overflow-hidden border border-border-subtle bg-surface-2">
-                {t.photoUrl ? (
-                  <img
-                    src={t.photoUrl}
-                    alt={t.name}
-                    className="w-full h-full object-contain bg-surface-2"
-                  />
-                ) : (
+              {carouselPhotos.length > 0 ? (
+                <div className="max-w-md mx-auto">
+                  <PhotoCarousel photos={carouselPhotos} branchName={t.name} />
+                </div>
+              ) : (
+                <div className="relative aspect-[3/4] max-w-md mx-auto rounded-2xl overflow-hidden border border-border-subtle bg-surface-2">
                   <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-surface-2 to-surface-card">
                     <svg className="w-32 h-32 text-gray-600" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
                     </svg>
                   </div>
-                )}
-              </div>
+                </div>
+              )}
             </div>
 
             {/* Info — second on mobile, left on desktop */}
@@ -95,7 +117,7 @@ export default async function TrainerPage({
 
               <div className="mt-8">
                 <a
-                  href={getWhatsAppUrl(validLocale)}
+                  href={trainerWa ? `https://wa.me/${trainerWa}` : getWhatsAppUrl(validLocale)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-3 bg-brand text-white font-bold px-6 py-3.5 rounded-full hover:bg-brand-hover transition-all shadow-lg shadow-brand/25"

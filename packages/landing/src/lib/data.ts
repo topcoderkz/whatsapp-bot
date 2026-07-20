@@ -121,6 +121,7 @@ export async function getTrainerById(id: number) {
       where: { id, isActive: true },
       include: {
         branch: { select: { id: true, name: true, slug: true } },
+        photos: { orderBy: { displayOrder: 'asc' } },
         groupClasses: {
           where: { isActive: true },
           orderBy: { name: 'asc' },

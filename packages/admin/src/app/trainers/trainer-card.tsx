@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { updateTrainer, toggleTrainer } from '@/lib/actions';
 import { ImageUpload } from '@/components/image-upload';
+import { TrainerPhotoManager } from './trainer-photo-manager';
 
 interface TrainerCardProps {
   trainer: {
@@ -10,11 +11,13 @@ interface TrainerCardProps {
     name: string;
     specialization: string | null;
     photoUrl: string | null;
+    phone: string | null;
     bio: string | null;
     experienceYears: number | null;
     isActive: boolean;
     branchId: number;
     branch: { id: number; name: string };
+    photos: { id: number; imageUrl: string; displayOrder: number }[];
   };
   branches: { id: number; name: string }[];
 }
@@ -58,6 +61,10 @@ export function TrainerCard({ trainer: t, branches }: TrainerCardProps) {
             </div>
           </div>
           <div>
+            <label className="block text-xs text-gray-500 mb-1">Телефон (WhatsApp)</label>
+            <input name="phone" type="tel" defaultValue={t.phone || ''} placeholder="+77XXXXXXXXX" className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
+          </div>
+          <div>
             <label className="block text-xs text-gray-500 mb-1">О тренере</label>
             <textarea name="bio" defaultValue={t.bio || ''} rows={2} className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm" />
           </div>
@@ -92,6 +99,9 @@ export function TrainerCard({ trainer: t, branches }: TrainerCardProps) {
               {t.specialization && ` \u2022 ${t.specialization}`}
               {t.experienceYears && ` \u2022 ${t.experienceYears} лет опыта`}
             </p>
+            {t.phone && (
+              <p className="text-xs text-gray-500 mt-0.5">📱 {t.phone}</p>
+            )}
             {t.bio && <p className="text-xs text-gray-400 mt-1">{t.bio}</p>}
           </div>
           <div className="flex gap-2 flex-shrink-0">
@@ -109,6 +119,8 @@ export function TrainerCard({ trainer: t, branches }: TrainerCardProps) {
           </div>
         </div>
       )}
+
+      {!editing && <TrainerPhotoManager trainerId={t.id} initialPhotos={t.photos} />}
     </div>
   );
 }

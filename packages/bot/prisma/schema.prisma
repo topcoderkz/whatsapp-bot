@@ -84,6 +84,10 @@ model Trainer {
   branch          Branch     @relation(fields: [branchId], references: [id])
   name            String
   specialization  String?
+  // Personal WhatsApp number in E.164-ish format (77XXXXXXXXX). Optional —
+  // when set, the trainer detail page shows a direct wa.me link so visitors
+  // can start a chat instead of going through the branch manager.
+  phone           String?
   photoUrl        String?    @map("photo_url")
   bio             String?
   experienceYears Int?       @map("experience_years")
@@ -94,8 +98,23 @@ model Trainer {
 
   groupClasses GroupClass[]
   bookings     Booking[]
+  photos       TrainerPhoto[]
 
   @@map("trainers")
+}
+
+// Additional photos per trainer — mirrors BranchPhoto. Kept in a separate
+// table (not JSON on Trainer) so display order can be updated cheaply and
+// individual photos can be soft-deleted without rewriting the whole set.
+model TrainerPhoto {
+  id           Int      @id @default(autoincrement())
+  trainerId    Int      @map("trainer_id")
+  trainer      Trainer  @relation(fields: [trainerId], references: [id], onDelete: Cascade)
+  imageUrl     String   @map("image_url")
+  displayOrder Int      @default(0) @map("display_order")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  @@map("trainer_photos")
 }
 
 model GroupClass {
