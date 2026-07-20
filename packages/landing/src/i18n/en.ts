@@ -80,6 +80,7 @@ export const en: LandingTranslations = {
     classes_title: 'Group classes with this trainer',
     branch_label: 'Branch',
     experience_label: 'Experience',
+    whatsapp_direct: 'Chat with trainer on WhatsApp',
   },
   classes: {
     title: 'Group Classes',

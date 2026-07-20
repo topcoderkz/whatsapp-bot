@@ -77,6 +77,7 @@ export interface LandingTranslations {
     classes_title: string;
     branch_label: string;
     experience_label: string;
+    whatsapp_direct: string;
   };
   classes: {
     title: string;

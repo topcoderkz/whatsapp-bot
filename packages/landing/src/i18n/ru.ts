@@ -80,6 +80,7 @@ export const ru: LandingTranslations = {
     classes_title: 'Групповые занятия с тренером',
     branch_label: 'Филиал',
     experience_label: 'Опыт',
+    whatsapp_direct: 'Написать в WhatsApp тренеру',
   },
   classes: {
     title: 'Групповые занятия',

@@ -80,6 +80,7 @@ export const kk: LandingTranslations = {
     classes_title: 'Жаттықтырушымен топтық жаттығулар',
     branch_label: 'Филиал',
     experience_label: 'Тәжірибе',
+    whatsapp_direct: 'Жаттықтырушыға WhatsApp-қа жазу',
   },
   classes: {
     title: 'Топтық жаттығулар',
